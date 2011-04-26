@@ -7,7 +7,9 @@ import java.util.List;
 
 import javax.servlet.ServletException;
 
+import net.praqma.jenkins.plugin.mrp.MatrixReloadedState.BuildState;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.StaplerRequest;
@@ -28,6 +30,14 @@ import hudson.model.StringParameterValue;
 public class MatrixReloadedAction implements Action
 {
 	private AbstractBuild<?, ?> build;
+	private String checked = null;
+	
+	public MatrixReloadedAction(){}
+	
+	public MatrixReloadedAction( String checked )
+	{
+		this.checked = checked;
+	}
 
 	public String getDisplayName()
 	{
@@ -45,13 +55,14 @@ public class MatrixReloadedAction implements Action
 		return "matrix-reloaded";
 	}
 	
-    public AbstractBuild<?, ?> getBuild() {
-        return build;
-    }
+	public AbstractBuild<?, ?> getBuild()
+	{
+		return build;
+	}
     
-    public String getString()
+    public String getPrefix()
     {
-    	return "MY OWN STRING";
+    	return Definitions.prefix;
     }
 	
 	public void doConfigSubmit( StaplerRequest req, StaplerResponse rsp ) throws ServletException, IOException, InterruptedException
@@ -63,48 +74,79 @@ public class MatrixReloadedAction implements Action
         JSONObject formData = req.getSubmittedForm();
         Iterator<?> it = formData.keys();
         
+        System.out.println( "[MRP] The MATRIX RELOADED FORM has been submitted" );
+        
+        /* UUID */
+        String uuid = build.getProject().getDisplayName() + "_" + build.getNumber() + "_" + System.currentTimeMillis();
+        BuildState bs = MatrixReloadedState.getInstance().getBuildState( uuid );
+        
         /* Generate the parameters */
         while( it.hasNext() )
         {
         	String key = (String)it.next();
-        	System.out.println( "[WOLLE] key=" + key ); 
+        	 
         	/* Check the field */
-        	if( key.startsWith( "mrp::" ) )
+        	if( key.startsWith( Definitions.prefix ) )
         	{
-        		String[] vs = key.split( "::", 2 );
-        		
-        		String value = formData.getString( key );
-        		boolean checked = formData.getBoolean( key );
-        		
-        		System.out.println( "[WOLLE] key=" + key + ", value=" + value );
-        		
-        		boolean reuse = false;
-        		
-        		/**/
-        		if( vs.length > 1 && checked )
+        		String[] vs = key.split( Definitions.delimiter, 2 );
+        		try
         		{
-        			System.out.println( "[WOLLE] YAY" );
-        			reuse = true;
+	        		boolean checked = formData.getBoolean( key );
+	        		
+	        		boolean rebuild = false;
+	        		
+	        		/**/
+	        		if( vs.length > 1 && checked )
+	        		{
+	        			rebuild = true;
+	        		}
+	        		
+	        		/* Create the parameter */
+	        		if( vs.length > 1 )
+	        		{
+	        			//values.add( new BooleanParameterValue( key, rebuild ) );
+	        			bs.addConfiguration( vs[1], rebuild );
+	        		}
         		}
-        		
-        		/* Create the parameter */
-        		if( vs.length > 1 )
+        		catch( JSONException e )
         		{
-        			System.out.println( "[WOLLE] creating parameter" );
-        			values.add( new BooleanParameterValue( key, reuse ) );
+        			/* No-op, not the parameter we were looking for. */
         		}
         	}
         	
-        	if( key.equals( "MRP::NUMBER" ) )
+        	if( key.equals( Definitions.prefix + "NUMBER" ) )
         	{
         		String value = formData.getString( key );
-        		values.add( new StringParameterValue( "MRP_NUMBER", value ) );
+        		//values.add( new StringParameterValue( key, value ) );
+        		try
+        		{
+        			bs.rebuildNumber = Integer.parseInt( value );
+        		}
+        		catch( NumberFormatException w )
+        		{
+        			bs.rebuildNumber = 0;
+        		}
         	}
         }
         
-        //System.out.println( "[WOLLE] OWNER=" + paramDefprop.getOwner().getDisplayName() );
-        System.out.println( "[WOLLE] OWNER=" + build.getProject().getDisplayName() );
-        System.out.println( "[WOLLE] SIZE OF: " + values.size() );
+        //System.out.println( "[WOLLE] OWNER=" + build.getProject().getDisplayName() );
+        //System.out.println( "[WOLLE] SIZE OF: " + values.size() );
+        
+        /* Get the parameters, if any and  */
+        ParametersDefinitionProperty paramDefprop = build.getProject().getProperty(ParametersDefinitionProperty.class);
+        if( paramDefprop != null )
+        {
+        	List<ParameterDefinition> defs = paramDefprop.getParameterDefinitions();
+        	for( ParameterDefinition pd : defs )
+        	{
+        		if( !pd.getName().startsWith( Definitions.prefix ) )
+        		{
+        			values.add( pd.getDefaultParameterValue() );
+        		}        		
+        	}
+        }
+        
+        values.add( new StringParameterValue( "uuid", uuid ) );
         
         Hudson.getInstance().getQueue().schedule( 
         		build.getProject(), 0, new ParametersAction(values), new CauseAction(new Cause.UserCause())

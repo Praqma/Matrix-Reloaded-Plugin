@@ -20,10 +20,10 @@
 	</j:choose>
 	<j:choose>
 		<j:when test="${b.getResult().ordinal==0}">
-			<f:checkbox name="mrp::${p.combination.toString()}" checked="true" />
+			<f:checkbox name="${prefix}${p.combination.toString()}" checked="false" status="0" />
 		</j:when>
 		<j:otherwise>
-			<f:checkbox name="mrp::${p.combination.toString()}" checked="false" />
+			<f:checkbox name="${prefix}${p.combination.toString()}" checked="true" status="3" />
 		</j:otherwise>
 	</j:choose>
 </j:jelly>

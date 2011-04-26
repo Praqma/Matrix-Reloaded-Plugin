@@ -10,102 +10,88 @@
 			</l:tasks>
 		</l:side-panel>
 		<l:main-panel>
-		
-	
-      <j:invokeStatic var="currentThread" className="java.lang.Thread" method="currentThread" />
-      <j:invoke var="buildClass" on="${currentThread.contextClassLoader}" method="loadClass">
-          <j:arg value="hudson.model.AbstractBuild" />
-      </j:invoke>
 
-	
-  IT=${it}<br />
-  <j:set var="build" value="${request.findAncestorObject(buildClass)}" />
-  BUILD=${build}
- <br /> 
-  <j:set var="o" value="${build.layouter}"/>
-  O ${o}
-<br />
-  <div id='matrix'>
-  	<f:form method="post" action="configSubmit" name="config">
-    <j:choose>
-      <!-- Optimized case when there's only one dimension to the axis (or zero dimension) -->
-      <j:when test="${empty(o.x) and empty(o.y)}">
-        <h2>${%Configurations}</h2>
-        <j:forEach var="p" items="${o.rows[0][0]}">
-           <!-- <d:invokeBody /> -->
-           <st:include page="main.jelly" />
-          <st:nbsp />
-        </j:forEach>
-      </j:when>
-      <j:otherwise>
-        <h2>${%Configuration Matrix}</h2>
-        <table border="1" class="middle-align center-align">
-          <!-- X-axis -->
-          <j:forEach var="x" items="${o.x}" varStatus="loop">
-            <tr>
-              <!-- space for Y-axis -->
-              <j:if test="${!empty(o.y)}">
-                <td colspan="${size(o.y)}" />
-              </j:if>
-              <j:forEach begin="1" end="${o.repeatX(loop.index)}">
-                <j:forEach var="v" items="${x.values}">
-                  <td colspan="${o.width(loop.index)}">${v}</td>
-                </j:forEach>
-              </j:forEach>
-            </tr>
-          </j:forEach>
 
-          <!-- Y-axis -->
-          <j:forEach var="r" items="${o.rows}">
-            <tr>
-              <j:forEach var="y" items="${o.y}" varStatus="loop">
-                <j:if test="${r.drawYHeader(loop.index)!=null}">
-                  <td rowspan="${o.height(loop.index)}">${r.drawYHeader(loop.index)}</td>
-                </j:if>
-              </j:forEach>
+			<j:invokeStatic var="currentThread" className="java.lang.Thread"
+				method="currentThread" />
+			<j:invoke var="buildClass" on="${currentThread.contextClassLoader}"
+				method="loadClass">
+				<j:arg value="hudson.model.AbstractBuild" />
+			</j:invoke>
 
-              <j:forEach var="c" items="${r}">
-                <td>
-                  <j:choose>
-                    <j:forEach var="p" items="${c}">
-                      <div>
-                        <!-- <d:invokeBody /> -->
-                        <st:include page="main.jelly" />
-                      </div>
-                    </j:forEach>
-                  </j:choose>
-                </td>
-              </j:forEach>
-            </tr>
-          </j:forEach>
-        </table>
-      </j:otherwise>
-    </j:choose>
-    <!-- 
-    <j:if test="${ajax==null and attrs.autoRefresh and !h.isAutoRefresh(request)}">
-      <script defer="defer">
-        refreshPart('matrix',"./ajaxMatrix");
-      </script>
-    </j:if>
-     -->
-     	<input type="hidden" name="MRP::NUMBER" value="${build.number}" />
-		<f:submit value="Rebuild Matrix" />
-    </f:form>
-  </div>
-		
-		
-		<!-- 
-			<f:form method="post" action="configSubmit" name="config">
 
-				<f:entry title="Conf1" description="First configuration">
-					<f:textbox name="mrp::alpha" value="1" />
-				</f:entry>
+			IT=${it}
+			<br />
+			<j:set var="build" value="${request.findAncestorObject(buildClass)}" />
+			BUILD=${build}
+			<br />
+			<j:set var="o" value="${build.layouter}" />
+			O ${o}
+			<br />
+			<div id='matrix'>
+				<f:form method="post" action="configSubmit" name="config">
+					<j:set var="prefix" value="${it.getPrefix()}" />
+					<j:choose>
+						<!-- Optimized case when there's only one dimension to the axis (or 
+							zero dimension) -->
+						<j:when test="${empty(o.x) and empty(o.y)}">
+							<h2>${%Configurations}</h2>
+							<j:forEach var="p" items="${o.rows[0][0]}">
+								<!-- <d:invokeBody /> -->
+								<st:include page="main.jelly" />
+								<st:nbsp />
+							</j:forEach>
+						</j:when>
+						<j:otherwise>
+							<h2>${%Configuration Matrix}</h2>
+							<table border="1" class="middle-align center-align">
+								<!-- X-axis -->
+								<j:forEach var="x" items="${o.x}" varStatus="loop">
+									<tr>
+										<!-- space for Y-axis -->
+										<j:if test="${!empty(o.y)}">
+											<td colspan="${size(o.y)}" />
+										</j:if>
+										<j:forEach begin="1" end="${o.repeatX(loop.index)}">
+											<j:forEach var="v" items="${x.values}">
+												<td colspan="${o.width(loop.index)}">${v}</td>
+											</j:forEach>
+										</j:forEach>
+									</tr>
+								</j:forEach>
 
-				<f:block>
+								<!-- Y-axis -->
+								<j:forEach var="r" items="${o.rows}">
+									<tr>
+										<j:forEach var="y" items="${o.y}" varStatus="loop">
+											<j:if test="${r.drawYHeader(loop.index)!=null}">
+												<td rowspan="${o.height(loop.index)}">${r.drawYHeader(loop.index)}</td>
+											</j:if>
+										</j:forEach>
+
+										<j:forEach var="c" items="${r}">
+											<td>
+												<j:choose>
+													<j:forEach var="p" items="${c}">
+														<div>
+															<!-- <d:invokeBody /> -->
+															<st:include page="main.jelly" />
+														</div>
+													</j:forEach>
+												</j:choose>
+											</td>
+										</j:forEach>
+									</tr>
+								</j:forEach>
+							</table>
+						</j:otherwise>
+					</j:choose>
+					<!-- <j:if test="${ajax==null and attrs.autoRefresh and !h.isAutoRefresh(request)}"> 
+						<script defer="defer"> refreshPart('matrix',"./ajaxMatrix"); </script> </j:if> -->
+					<input type="hidden" name="${it.getPrefix()}NUMBER" value="${build.number}" />
 					<f:submit value="Rebuild Matrix" />
-				</f:block>
-			</f:form>
-			-->
+				</f:form>
+			</div>
 		</l:main-panel>
 	</l:layout>
 </j:jelly>
