@@ -15,6 +15,8 @@ import net.sf.json.JSONObject;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
+import hudson.matrix.MatrixRun;
+import hudson.matrix.MatrixBuild;
 import hudson.model.AbstractBuild;
 import hudson.model.BooleanParameterValue;
 import hudson.model.Action;
@@ -31,6 +33,13 @@ public class MatrixReloadedAction implements Action
 {
 	private AbstractBuild<?, ?> build;
 	private String checked = null;
+	
+	enum BuildType
+	{
+		MATRIXBUILD,
+		MATRIXRUN,
+		UNKNOWN
+	}
 	
 	public MatrixReloadedAction(){}
 	
@@ -64,15 +73,46 @@ public class MatrixReloadedAction implements Action
     {
     	return Definitions.prefix;
     }
+    
+    public String getChecked()
+    {
+    	return this.checked;
+    }
 	
 	public void doConfigSubmit( StaplerRequest req, StaplerResponse rsp ) throws ServletException, IOException, InterruptedException
 	{
-		AbstractBuild<?, ?> build = req.findAncestorObject(AbstractBuild.class);
+		AbstractBuild<?, ?> mbuild = req.findAncestorObject(AbstractBuild.class);
+		AbstractBuild<?, ?> build = null;
+		
+		BuildType type;
+		
+		if( req.findAncestor( MatrixBuild.class ) != null )
+		{
+			type = BuildType.MATRIXBUILD;
+			build = mbuild;
+		}
+		else if( req.findAncestor( MatrixRun.class ) != null )
+		{
+			type = BuildType.MATRIXRUN;
+			build = ((MatrixRun)mbuild).getParentBuild();
+		}
+		else
+		{
+			type = BuildType.UNKNOWN;
+		}
 		
 		List<ParameterValue> values = new ArrayList<ParameterValue>();
 		
         JSONObject formData = req.getSubmittedForm();
+        //System.out.println( "[WOLLE] formDAta=" + formData.toString( 2 ) );
+        //JSONArray runRedos = (JSONArray)formData.get( Definitions.prefix + "run" );
+        
+        //System.out.println( "[WOLLE] formREDO=" + runRedos.toString( 2 ) );
+        //Iterator<?> it = runRedos.keys();
         Iterator<?> it = formData.keys();
+        //runRedos.
+        //formData.accumulate( Definitions.prefix + "run", value );
+        
         
         System.out.println( "[MRP] The MATRIX RELOADED FORM has been submitted" );
         
@@ -82,10 +122,14 @@ public class MatrixReloadedAction implements Action
         
         /* Generate the parameters */
         while( it.hasNext() )
+        //for( int i = 0 ; i < runRedos.size() ; ++i )
         {
         	String key = (String)it.next();
+        	//System.out.println( "[WOLLE] " + i + " + " + runRedos.getBoolean( i ) );
+        	//System.out.println( "[WOLLE] " + key + " + " + formData.getBoolean( key ) );
         	 
         	/* Check the field */
+        	
         	if( key.startsWith( Definitions.prefix ) )
         	{
         		String[] vs = key.split( Definitions.delimiter, 2 );
@@ -132,7 +176,7 @@ public class MatrixReloadedAction implements Action
         //System.out.println( "[WOLLE] OWNER=" + build.getProject().getDisplayName() );
         //System.out.println( "[WOLLE] SIZE OF: " + values.size() );
         
-        /* Get the parameters, if any and  */
+        /* Get the parameters, if any and add them to the build */
         ParametersDefinitionProperty paramDefprop = build.getProject().getProperty(ParametersDefinitionProperty.class);
         if( paramDefprop != null )
         {
@@ -153,23 +197,14 @@ public class MatrixReloadedAction implements Action
         );
         
         
-        
-		rsp.sendRedirect( "../../" );
-        
-        /*
-        JSONArray a = JSONArray.fromObject(formData.get("parameter"));
-        
-        for (Object o : a) {
-            JSONObject jo = (JSONObject) o;
-            String name = jo.getString("name");
-            ParameterDefinition d = paramDefprop.getParameterDefinition(name);
-            if (d == null) {
-                throw new IllegalArgumentException("No such parameter definition: " + name);
-            }
-            ParameterValue parameterValue = d.createValue(req, jo);
-            System.out.println( "[WOLLE] Parameter=" + name + "," + d.getName() );
+        if( type.equals( BuildType.MATRIXRUN ) )
+        {
+        	rsp.sendRedirect( "../../../" );
         }
-        */
+        else
+        {
+        	rsp.sendRedirect( "../../" );
+        }
 	}
 
 }

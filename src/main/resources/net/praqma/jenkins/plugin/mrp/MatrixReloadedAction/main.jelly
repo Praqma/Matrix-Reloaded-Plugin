@@ -18,12 +18,13 @@
 			</a>
 		</j:otherwise>
 	</j:choose>
-	<j:choose>
-		<j:when test="${b.getResult().ordinal==0}">
-			<f:checkbox name="${prefix}${p.combination.toString()}" checked="false" status="0" />
+	<j:choose> <!-- defaultChecked.equals(p.combination.toString()) -->
+		<j:when test="${(b.getResult().ordinal==0 and defaultChecked.length()==0) or (!defaultChecked.equals(p.combination.toString()) and defaultChecked.length()>0)}">
+			<f:checkbox name="${prefix}${p.combination.toString()}" checked="false" value="${b.getResult().ordinal}" />
 		</j:when>
 		<j:otherwise>
-			<f:checkbox name="${prefix}${p.combination.toString()}" checked="true" status="3" />
+			<f:checkbox name="${prefix}${p.combination.toString()}" checked="true" value="${b.getResult().ordinal}" />
 		</j:otherwise>
 	</j:choose>
 </j:jelly>
+
