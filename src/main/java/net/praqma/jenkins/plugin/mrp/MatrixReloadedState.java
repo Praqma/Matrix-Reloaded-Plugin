@@ -3,6 +3,12 @@ package net.praqma.jenkins.plugin.mrp;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class is used to pass parameters from a form to a Run, given a uuid.
+ * This is a singleton class.
+ * @author wolfgang
+ *
+ */
 public class MatrixReloadedState
 {
 	private static final MatrixReloadedState instance = new MatrixReloadedState();
@@ -14,8 +20,16 @@ public class MatrixReloadedState
 		return instance;
 	}
 	
+	/**
+	 * This is the class holding the information about a Matrix Reloaded state retrieved from the form submit.
+	 * @author wolfgang
+	 *
+	 */
 	public class BuildState
 	{
+		/**
+		 * Determines whether a configuration should be reused or rebuild
+		 */
 		Map<String, Boolean> configurations = new HashMap<String, Boolean>();
 		public String uuid;
 		public int rebuildNumber;
@@ -25,16 +39,29 @@ public class MatrixReloadedState
 			this.uuid = uuid;
 		}
 		
+		/**
+		 * Add a configuration to the build state
+		 * @param config The {@link hudson.matrix.MatrixConfiguration} given as its {@link hudson.matrix.Combination}
+		 * @param reuse A boolean to determine whether to reuse the {@link hudson.model.Run} or not
+		 */
 		public void addConfiguration( String config, boolean reuse )
 		{
 			this.configurations.put( config, reuse );
 		}
 		
+		/**
+		 * Remove the {@link BuildState} object from the Map.
+		 */
 		public void remove()
 		{
 			MatrixReloadedState.this.buildStates.remove( this.uuid );
 		}
 		
+		/**
+		 * Returns whether or not to reuse the {@link hudson.model.Run}
+		 * @param config A {@link hudson.matrix.MatrixConfiguration} given as its {@link hudson.matrix.Combination}
+		 * @return A boolean determining whether or nor to reuse the {@link hudson.model.Run}
+		 */
 		public boolean getConfiguration( String config )
 		{
 			if( configurations.containsKey( config ) )
@@ -46,8 +73,16 @@ public class MatrixReloadedState
 		}
 	}
 
+	/**
+	 * The data of the class
+	 */
 	Map<String, BuildState> buildStates = new HashMap<String, BuildState>();
 
+	/**
+	 * Return a specific BuildState given a uuid
+	 * @param uuid The uuid
+	 * @return The BuildState
+	 */
 	public BuildState getBuildState( String uuid )
 	{
 		
@@ -57,8 +92,5 @@ public class MatrixReloadedState
 		}
 		
 		return buildStates.get( uuid );
-	}
-		
-	//public void remove
-	
+	}	
 }

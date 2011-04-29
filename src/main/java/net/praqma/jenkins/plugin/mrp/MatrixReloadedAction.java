@@ -8,7 +8,6 @@ import java.util.List;
 import javax.servlet.ServletException;
 
 import net.praqma.jenkins.plugin.mrp.MatrixReloadedState.BuildState;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
@@ -18,7 +17,6 @@ import org.kohsuke.stapler.StaplerResponse;
 import hudson.matrix.MatrixRun;
 import hudson.matrix.MatrixBuild;
 import hudson.model.AbstractBuild;
-import hudson.model.BooleanParameterValue;
 import hudson.model.Action;
 import hudson.model.Cause;
 import hudson.model.CauseAction;
@@ -29,6 +27,12 @@ import hudson.model.ParametersAction;
 import hudson.model.ParametersDefinitionProperty;
 import hudson.model.StringParameterValue;
 
+/**
+ * The Matrix Reloaded Action class.
+ * This enables the plugin to add the link action to the side panel.
+ * @author wolfgang
+ *
+ */
 public class MatrixReloadedAction implements Action
 {
 	private AbstractBuild<?, ?> build;
@@ -104,15 +108,8 @@ public class MatrixReloadedAction implements Action
 		List<ParameterValue> values = new ArrayList<ParameterValue>();
 		
         JSONObject formData = req.getSubmittedForm();
-        //System.out.println( "[WOLLE] formDAta=" + formData.toString( 2 ) );
-        //JSONArray runRedos = (JSONArray)formData.get( Definitions.prefix + "run" );
-        
-        //System.out.println( "[WOLLE] formREDO=" + runRedos.toString( 2 ) );
-        //Iterator<?> it = runRedos.keys();
+
         Iterator<?> it = formData.keys();
-        //runRedos.
-        //formData.accumulate( Definitions.prefix + "run", value );
-        
         
         System.out.println( "[MRP] The MATRIX RELOADED FORM has been submitted" );
         
@@ -122,14 +119,10 @@ public class MatrixReloadedAction implements Action
         
         /* Generate the parameters */
         while( it.hasNext() )
-        //for( int i = 0 ; i < runRedos.size() ; ++i )
         {
         	String key = (String)it.next();
-        	//System.out.println( "[WOLLE] " + i + " + " + runRedos.getBoolean( i ) );
-        	//System.out.println( "[WOLLE] " + key + " + " + formData.getBoolean( key ) );
-        	 
-        	/* Check the field */
-        	
+
+        	/* Check the fields of the form */
         	if( key.startsWith( Definitions.prefix ) )
         	{
         		String[] vs = key.split( Definitions.delimiter, 2 );
@@ -145,38 +138,37 @@ public class MatrixReloadedAction implements Action
 	        			rebuild = true;
 	        		}
 	        		
-	        		/* Create the parameter */
+	        		/* Add parameter to the build state */
 	        		if( vs.length > 1 )
 	        		{
-	        			//values.add( new BooleanParameterValue( key, rebuild ) );
 	        			bs.addConfiguration( vs[1], rebuild );
 	        		}
         		}
         		catch( JSONException e )
         		{
-        			/* No-op, not the parameter we were looking for. */
+        			/* No-op, not the field we were looking for. */
         		}
         	}
         	
+        	/* The special form field, providing information about the build we decent from */
         	if( key.equals( Definitions.prefix + "NUMBER" ) )
         	{
         		String value = formData.getString( key );
-        		//values.add( new StringParameterValue( key, value ) );
         		try
         		{
         			bs.rebuildNumber = Integer.parseInt( value );
         		}
         		catch( NumberFormatException w )
         		{
+        			/* If we can't parse the integer, the number is zero.
+        			 * This will either make the new run fail or rebuild it
+        			 * id rebuildIfMissing is set(not set actually) */
         			bs.rebuildNumber = 0;
         		}
         	}
         }
         
-        //System.out.println( "[WOLLE] OWNER=" + build.getProject().getDisplayName() );
-        //System.out.println( "[WOLLE] SIZE OF: " + values.size() );
-        
-        /* Get the parameters, if any and add them to the build */
+        /* Get the parameters of the build, if any and add them to the build */
         ParametersDefinitionProperty paramDefprop = build.getProject().getProperty(ParametersDefinitionProperty.class);
         if( paramDefprop != null )
         {
@@ -190,13 +182,16 @@ public class MatrixReloadedAction implements Action
         	}
         }
         
+        /* Add the UUID to the new build. */
         values.add( new StringParameterValue( "uuid", uuid ) );
         
+        /* Schedule the MatrixBuild */
         Hudson.getInstance().getQueue().schedule( 
         		build.getProject(), 0, new ParametersAction(values), new CauseAction(new Cause.UserCause())
         );
         
-        
+        /* Depending on where the form was submitted, the number
+         * of levels to ... */
         if( type.equals( BuildType.MATRIXRUN ) )
         {
         	rsp.sendRedirect( "../../../" );

@@ -1,25 +1,26 @@
 package net.praqma.jenkins.plugin.mrp;
 
-import java.io.IOException;
 import java.util.List;
 
 import net.praqma.jenkins.plugin.mrp.MatrixReloadedState.BuildState;
 
-import hudson.EnvVars;
 import hudson.Extension;
 import hudson.matrix.MatrixRun;
 import hudson.matrix.MatrixBuild;
 import hudson.model.AbstractBuild;
-import hudson.model.BooleanParameterValue;
-import hudson.model.JobProperty;
 import hudson.model.ParameterValue;
-import hudson.model.ParametersDefinitionProperty;
 import hudson.model.TaskListener;
 import hudson.model.ParametersAction;
 import hudson.model.Run;
 import hudson.model.StringParameterValue;
 import hudson.model.listeners.RunListener;
 
+/**
+ * This registers the {@link Action}s to the side panel of the matrix project
+ * and sets the Run.RedoRun object if it's actually a redo.
+ * @author wolfgang
+ *
+ */
 @Extension
 public class MatrixReloadedListener extends RunListener<Run>
 {
@@ -28,15 +29,11 @@ public class MatrixReloadedListener extends RunListener<Run>
 		super( Run.class );
 	}
 	
-	/**
-	 * 
-	 */
 	@Override
 	public void onStarted( Run run, TaskListener listener )
 	{
-		/* Parse ParametersAction */
         /* First try to find the correct parameter for the project */
-		/* Test for MatrixBuild */
+		/* Test for MatrixRun */
 		if( run instanceof MatrixRun )
 		{
 			StringParameterValue uuid;
@@ -52,10 +49,6 @@ public class MatrixReloadedListener extends RunListener<Run>
 			}
             
             MatrixRun mr = (MatrixRun)run;
-                        
-            //StringParameterValue mrpNumber = (StringParameterValue)getParameterValue( pvs, Definitions.prefix + "NUMBER" );
-            
-            
             
             /* This run is not related to a matrix reloaded build */
             if( uuid == null )
@@ -63,15 +56,23 @@ public class MatrixReloadedListener extends RunListener<Run>
             	return;
             }
             
+            /* Retrieve the build state and set the RedoRun object */
             BuildState bs = MatrixReloadedState.getInstance().getBuildState( uuid.value );
 
             int mnumber = bs.rebuildNumber;
             run.setRedoRun( mnumber, bs.getConfiguration( mr.getParent().getCombination().toString() ) );
             
-            //System.out.println( "[WOLLE] REDO=" + bs.getConfiguration( mr.getParent().getCombination().toString() ) );
+            /* Let's try to remove the build state */
+            bs.remove();
 		}
 	}
 	
+	/**
+	 * Convenience method for retrieving {@link ParameterValue}s.
+	 * @param pvs A list of {@link ParameterValue}s.
+	 * @param key The key of the {@link ParameterValue}.
+	 * @return The parameter or null
+	 */
 	private ParameterValue getParameterValue( List<ParameterValue> pvs, String key )
 	{
     	for( ParameterValue pv : pvs )
@@ -91,16 +92,16 @@ public class MatrixReloadedListener extends RunListener<Run>
 	@Override
 	public void onCompleted( Run run, TaskListener listener )
 	{
-		/* Test for MatrixBuild */
+		/* Test for MatrixBuild and add to context */
 		if( run instanceof MatrixBuild )
 		{
-			AbstractBuild build = (AbstractBuild)run;
+			AbstractBuild<?, ?> build = (AbstractBuild<?, ?>)run;
 
 			MatrixReloadedAction action = new MatrixReloadedAction();
 			build.getActions().add( action );
 		}
 		
-		/* Test for MatrixRun */
+		/* Test for MatrixRun and add to context */
 		if( run instanceof MatrixRun )
 		{
 			AbstractBuild<?, ?> build = (AbstractBuild<?, ?>)run;
