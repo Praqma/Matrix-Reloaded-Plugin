@@ -76,7 +76,7 @@ public class MatrixReloadedState
 	/**
 	 * The data of the class
 	 */
-	Map<String, BuildState> buildStates = new HashMap<String, BuildState>();
+	private Map<String, BuildState> buildStates = new HashMap<String, BuildState>();
 
 	/**
 	 * Return a specific BuildState given a uuid
