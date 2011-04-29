@@ -90,6 +90,7 @@ public class MatrixReloadedAction implements Action
         Iterator<?> it = formData.keys();
         
         System.out.println( "[MRP] The MATRIX RELOADED FORM has been submitted" );
+        System.out.println( "[WOLLE] FORM=" + formData.toString( 2 ) );
         
         /* UUID */
         String uuid = build.getProject().getDisplayName() + "_" + build.getNumber() + "_" + System.currentTimeMillis();
@@ -146,6 +147,8 @@ public class MatrixReloadedAction implements Action
         	}
         }
         
+        System.out.println( "[WOLLE] I am here" );
+        /* TODO this only registers the default values of the parameters */
         /* Get the parameters of the build, if any and add them to the build */
         ParametersDefinitionProperty paramDefprop = build.getProject().getProperty(ParametersDefinitionProperty.class);
         if( paramDefprop != null )
@@ -155,6 +158,7 @@ public class MatrixReloadedAction implements Action
         	{
         		if( !pd.getName().startsWith( Definitions.prefix ) )
         		{
+        			System.out.println( "[WOLLE] adding " + pd.getName() );
         			values.add( pd.getDefaultParameterValue() );
         		}        		
         	}

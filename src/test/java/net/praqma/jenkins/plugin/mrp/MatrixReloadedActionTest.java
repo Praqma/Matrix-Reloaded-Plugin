@@ -7,7 +7,10 @@ import hudson.matrix.MatrixBuild;
 import hudson.matrix.MatrixProject;
 import hudson.model.Cause;
 import hudson.model.ParameterValue;
+import hudson.model.ParameterDefinition;
 import hudson.model.ParametersAction;
+import hudson.model.ParametersDefinitionProperty;
+import hudson.model.StringParameterDefinition;
 import hudson.model.StringParameterValue;
 
 import java.io.IOException;
@@ -17,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import net.praqma.jenkins.plugin.mrp.MatrixReloadedAction.BuildType;
 import net.praqma.jenkins.plugin.mrp.MatrixReloadedState.BuildState;
 import net.sf.json.JSONObject;
 
@@ -61,13 +65,15 @@ public class MatrixReloadedActionTest extends HudsonTestCase
 		assertEquals( mra.getChecked(), "test" );
 	}
 	
-	
+	public void testBuildType()
+	{
+		BuildType bt = BuildType.MATRIXBUILD;
+	}
 	
 	
 	private AxisList axes = null;
 	private Combination c = null;
 	
-	@BeforeClass
 	public void init()
 	{
 		
@@ -89,6 +95,11 @@ public class MatrixReloadedActionTest extends HudsonTestCase
 		
 		MatrixProject mp = createMatrixProject( "test" );
 		mp.setAxes( axes );
+		List<ParameterDefinition> list = new ArrayList<ParameterDefinition>();
+		list.add( new StringParameterDefinition( "Tetst", "wolle" ) );
+		ParametersDefinitionProperty pdp = new ParametersDefinitionProperty( list );
+		mp.addProperty( pdp );
+		
 		
 		/* Create some parameters to test continuation of parameters from reused to new build */
 		List<ParameterValue> values = new ArrayList<ParameterValue>();
