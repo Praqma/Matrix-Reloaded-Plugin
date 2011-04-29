@@ -1,7 +1,9 @@
 package net.praqma.jenkins.plugin.mrp;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -11,11 +13,15 @@ import hudson.matrix.Combination;
 import hudson.matrix.MatrixRun;
 import hudson.matrix.MatrixBuild;
 import hudson.matrix.MatrixProject;
+import hudson.model.ParameterValue;
 import hudson.model.Result;
+
+import net.praqma.jenkins.plugin.mrp.MatrixReloadedState.BuildState;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.jvnet.hudson.test.HudsonTestCase;
+import org.kohsuke.stapler.StaplerRequest;
 
 public class MatrixReloadedListenerTest extends HudsonTestCase
 {
@@ -37,7 +43,36 @@ public class MatrixReloadedListenerTest extends HudsonTestCase
         c = new Combination( r );
 	}
 	
-	public void test1() throws IOException, InterruptedException, ExecutionException
+	
+	public void testReloadedForm() throws IOException, InterruptedException, ExecutionException
+	{
+		init();
+		
+	}
+	
+	
+	public void testReloaded() throws IOException, InterruptedException, ExecutionException
+	{
+		init();
+		
+		MatrixProject mp = createMatrixProject( "test" );
+		mp.setAxes( axes );
+
+		List<ParameterValue> values = new ArrayList<ParameterValue>();
+        /* UUID */
+        String uuid = "myuuid";
+        BuildState bs = MatrixReloadedState.getInstance().getBuildState( uuid );
+		
+		MatrixBuild mb = mp.scheduleBuild2( 0 ).get();
+		MatrixRun mr = mb.getRun( c );
+		Result r = mr.getResult();
+		
+		System.out.println( "---->" + r.toString() );
+		
+		assertNotNull( mb );
+	}
+	
+	public void testNoReloaded() throws IOException, InterruptedException, ExecutionException
 	{
 		init();
 		

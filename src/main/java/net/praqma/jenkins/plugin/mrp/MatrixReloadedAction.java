@@ -82,33 +82,11 @@ public class MatrixReloadedAction implements Action
     {
     	return this.checked;
     }
-	
-	public void doConfigSubmit( StaplerRequest req, StaplerResponse rsp ) throws ServletException, IOException, InterruptedException
-	{
-		AbstractBuild<?, ?> mbuild = req.findAncestorObject(AbstractBuild.class);
-		AbstractBuild<?, ?> build = null;
-		
-		BuildType type;
-		
-		if( req.findAncestor( MatrixBuild.class ) != null )
-		{
-			type = BuildType.MATRIXBUILD;
-			build = mbuild;
-		}
-		else if( req.findAncestor( MatrixRun.class ) != null )
-		{
-			type = BuildType.MATRIXRUN;
-			build = ((MatrixRun)mbuild).getParentBuild();
-		}
-		else
-		{
-			type = BuildType.UNKNOWN;
-		}
-		
+    
+    public void performConfig( AbstractBuild<?, ?> build, JSONObject formData )
+    {
 		List<ParameterValue> values = new ArrayList<ParameterValue>();
 		
-        JSONObject formData = req.getSubmittedForm();
-
         Iterator<?> it = formData.keys();
         
         System.out.println( "[MRP] The MATRIX RELOADED FORM has been submitted" );
@@ -189,6 +167,34 @@ public class MatrixReloadedAction implements Action
         Hudson.getInstance().getQueue().schedule( 
         		build.getProject(), 0, new ParametersAction(values), new CauseAction(new Cause.UserCause())
         );
+        
+    }
+	
+	public void doConfigSubmit( StaplerRequest req, StaplerResponse rsp ) throws ServletException, IOException, InterruptedException
+	{
+		AbstractBuild<?, ?> mbuild = req.findAncestorObject(AbstractBuild.class);
+		AbstractBuild<?, ?> build = null;
+		
+		BuildType type;
+		
+		if( req.findAncestor( MatrixBuild.class ) != null )
+		{
+			type = BuildType.MATRIXBUILD;
+			build = mbuild;
+		}
+		else if( req.findAncestor( MatrixRun.class ) != null )
+		{
+			type = BuildType.MATRIXRUN;
+			build = ((MatrixRun)mbuild).getParentBuild();
+		}
+		else
+		{
+			type = BuildType.UNKNOWN;
+		}
+
+        JSONObject formData = req.getSubmittedForm();
+        System.out.println( formData.toString( 2 ) );
+		performConfig( build, formData );
         
         /* Depending on where the form was submitted, the number
          * of levels to ... */
