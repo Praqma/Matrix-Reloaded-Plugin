@@ -10,7 +10,7 @@
 
 	<groupId>net.praqma</groupId>
 	<artifactId>mrp</artifactId>
-	<version>0.1.8-SNAPSHOT</version>
+	<version>0.1.9-SNAPSHOT</version>
 	<name>Matrix Reloaded Plugin</name>
 	<packaging>hpi</packaging>
 	
@@ -38,32 +38,45 @@
 			<url>http://www.opensource.org/licenses/mit-license.php</url>
 		</license>
 	</licenses>
-	
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>cobertura-maven-plugin</artifactId>
-				<version>2.4</version>
-				<configuration>
-					<formats>
-						<format>html</format>
-						<format>xml</format>
-					</formats>
-				</configuration>
-				<executions>
-					<execution>
-						<id>do-coverage</id>
-						<phase>package</phase>
-						<goals>
-							<goal>cobertura</goal>
-						</goals>
-						<!-- <inherited>false</inherited> <configuration> </configuration> -->
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+
+	<profiles>
+		<profile>
+			<id>cobertura</id>
+			<activation>
+				<property>
+					<!-- Hudson by default defines a property BUILD_NUMBER which is used 
+						to enable the profile. -->
+					<name>BUILD_NUMBER</name>
+				</property>
+			</activation>
+
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>cobertura-maven-plugin</artifactId>
+						<version>2.4</version>
+						<configuration>
+							<formats>
+								<format>html</format>
+								<format>xml</format>
+							</formats>
+						</configuration>
+						<executions>
+							<execution>
+								<id>do-coverage</id>
+								<phase>package</phase>
+								<goals>
+									<goal>cobertura</goal>
+								</goals>
+								<!-- <inherited>false</inherited> <configuration> </configuration> -->
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 	
     <developers>
         <developer>

@@ -19,6 +19,15 @@ public class MatrixReloadedStateTest extends HudsonTestCase
 		
 		assertNotNull( bs );
 		
+		bs.remove();
+	}
+	
+	public void testConfigurations()
+	{
+		BuildState bs = MatrixReloadedState.getInstance().getBuildState( "test" );
+		
+		assertNotNull( bs );
+		
 		bs.rebuildNumber = 1;
 		bs.addConfiguration( "a=1", false );
 		bs.addConfiguration( "a=2", true );
@@ -29,5 +38,19 @@ public class MatrixReloadedStateTest extends HudsonTestCase
 		assertEquals( 1, bs.rebuildNumber );
 		
 		bs.remove();
+	}
+	
+	public void testBuildStateBranch()
+	{
+		BuildState bs = MatrixReloadedState.getInstance().getBuildState( "test" );
+		
+		assertNotNull( bs );
+		
+		/* Try to reach the other branch, where test IS defined */
+		BuildState bs2 = MatrixReloadedState.getInstance().getBuildState( "test" );
+		assertNotNull( bs2 );
+		
+		bs.remove();
+		bs2.remove();
 	}
 }
