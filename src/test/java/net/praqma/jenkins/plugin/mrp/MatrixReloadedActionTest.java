@@ -5,12 +5,19 @@ import hudson.matrix.AxisList;
 import hudson.matrix.Combination;
 import hudson.matrix.MatrixBuild;
 import hudson.matrix.MatrixProject;
+import hudson.model.Cause;
+import hudson.model.ParameterValue;
+import hudson.model.ParametersAction;
+import hudson.model.StringParameterValue;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import net.praqma.jenkins.plugin.mrp.MatrixReloadedState.BuildState;
 import net.sf.json.JSONObject;
 
 import org.junit.BeforeClass;
@@ -75,7 +82,7 @@ public class MatrixReloadedActionTest extends HudsonTestCase
         c = new Combination( r );
 	}
 	
-	public void test() throws IOException, InterruptedException, ExecutionException
+	public void testForm() throws IOException, InterruptedException, ExecutionException
 	{
 		/* Create a previous build */
 		init();
@@ -83,20 +90,25 @@ public class MatrixReloadedActionTest extends HudsonTestCase
 		MatrixProject mp = createMatrixProject( "test" );
 		mp.setAxes( axes );
 		
-		MatrixBuild mb = mp.scheduleBuild2( 0 ).get();
+		/* Create some parameters to test continuation of parameters from reused to new build */
+		List<ParameterValue> values = new ArrayList<ParameterValue>();
+		values.add( new StringParameterValue( "testParm", "value" ) );
 		
+		MatrixBuild mb = mp.scheduleBuild2( 0, new Cause.UserCause(), new ParametersAction( values ) ).get();
 		
+		/* Create form elements */
 		JSONObject form = new JSONObject();
 		
 		form.element( "MRP::NUMBER", 1 );
 		
 		form.element( "MRP::dim1=1,dim2=a", false );
-		form.element( "MRP::dim1=1,dim2=b", false );
-		form.element( "MRP::dim1=2,dim2=a", false );
+		form.element( "MRP::dim1=1,dim2=b", true );
+		form.element( "MRP::dim1=2,dim2=a", true );
 		form.element( "MRP::dim1=2,dim2=b", false );
 		
 		MatrixReloadedAction mra = new MatrixReloadedAction();
 		mra.performConfig( mb, form );
 		
 	}
+	
 }
