@@ -13,9 +13,9 @@ public class MatrixReloadedEnvironmentContributor extends EnvironmentContributor
 {
 	public void buildEnvironmentFor( Run r, EnvVars envs, TaskListener listener ) throws IOException, InterruptedException
 	{
-		if( r.getReuseRun() != null )
+		if( r.getRedoRun() != null )
 		{
-			envs.put( Definitions.rebuildJobVarName, r.getReuseRun().number + "" );
+			envs.put( Definitions.rebuildJobVarName, r.getRedoRun().number + "" );
 		}
 	}
 }
