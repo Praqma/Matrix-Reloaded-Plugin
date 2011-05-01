@@ -147,19 +147,20 @@ public class MatrixReloadedAction implements Action
         	}
         }
         
-        System.out.println( "[WOLLE] I am here" );
-        /* TODO this only registers the default values of the parameters */
+        /* TODO this only registers the default values of the parameters, this should work now */
         /* Get the parameters of the build, if any and add them to the build */
-        ParametersDefinitionProperty paramDefprop = build.getProject().getProperty(ParametersDefinitionProperty.class);
-        if( paramDefprop != null )
+        //ParametersDefinitionProperty paramDefprop = build.getProject().getProperty(ParametersDefinitionProperty.class);
+        ParametersAction actions = build.getAction( ParametersAction.class );
+        if( actions != null )
         {
-        	List<ParameterDefinition> defs = paramDefprop.getParameterDefinitions();
-        	for( ParameterDefinition pd : defs )
+        	List<ParameterValue> list = actions.getParameters();
+        	for( ParameterValue pv : list )
         	{
-        		if( !pd.getName().startsWith( Definitions.prefix ) )
+        		//if( !pv.getName().startsWith( Definitions.prefix ) )
+        		if( !pv.getName().equals( "uuid" ) )
         		{
-        			System.out.println( "[WOLLE] adding " + pd.getName() );
-        			values.add( pd.getDefaultParameterValue() );
+        			System.out.println( "[WOLLE] adding " + pv.getName() );
+        			values.add( pv );
         		}        		
         	}
         }
