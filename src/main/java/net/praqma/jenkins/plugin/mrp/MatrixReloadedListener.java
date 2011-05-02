@@ -104,8 +104,16 @@ public class MatrixReloadedListener extends RunListener<Run>
 		{
 			AbstractBuild<?, ?> build = (AbstractBuild<?, ?>)run;
 
-			MatrixReloadedAction action = new MatrixReloadedAction( ( (MatrixRun)run ).getParent().getCombination().toString() );
-			build.getActions().add( action );
+			if( run.getRedoRun() == null || run.getRedoRun().rebuild )
+			{
+				System.out.println( "[WOLLE] This needs an action" );
+				MatrixReloadedAction action = new MatrixReloadedAction( ( (MatrixRun)run ).getParent().getCombination().toString() );
+				build.getActions().add( action );
+			}
+			else
+			{
+				System.out.println( "[WOLLE] This does not need an action" );
+			}
 		}
 	}
 

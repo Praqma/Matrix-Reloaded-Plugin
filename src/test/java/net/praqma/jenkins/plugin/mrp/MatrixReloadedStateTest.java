@@ -53,4 +53,32 @@ public class MatrixReloadedStateTest extends HudsonTestCase
 		bs.remove();
 		bs2.remove();
 	}
+	
+	public void testToString()
+	{
+		BuildState bs = MatrixReloadedState.getInstance().getBuildState( "test" );
+		
+		bs.addConfiguration( "c1", true );
+		bs.addConfiguration( "c2", false );
+		
+		String s = bs.toString();
+		
+		assertEquals( "c1: true\nc2: false\n", s );
+		
+		bs.remove();
+	}
+	
+	public void testRemove()
+	{
+		BuildState bs = MatrixReloadedState.getInstance().getBuildState( "test" );
+		
+		bs.addConfiguration( "c1", true );
+		bs.addConfiguration( "c2", false );
+		
+		bs.removeConfiguration( "c1" );
+		bs.removeConfiguration( "c2" );
+		
+		assertEquals( 0, bs.size() );
+		assertFalse( MatrixReloadedState.getInstance().exists( "test" ) );
+	}
 }

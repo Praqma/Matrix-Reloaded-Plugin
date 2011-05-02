@@ -104,6 +104,11 @@ public class MatrixReloadedState
 			
 			return sb.toString();
 		}
+		
+		public int size()
+		{
+			return configurations.size();
+		}
 	}
 
 	/**
@@ -118,12 +123,16 @@ public class MatrixReloadedState
 	 */
 	public BuildState getBuildState( String uuid )
 	{
-		
 		if( !buildStates.containsKey( uuid ) )
 		{
 			buildStates.put( uuid, new BuildState( uuid ) );
 		}
 		
 		return buildStates.get( uuid );
-	}	
+	}
+	
+	public boolean exists( String uuid )
+	{
+		return buildStates.containsKey( uuid );
+	}
 }
