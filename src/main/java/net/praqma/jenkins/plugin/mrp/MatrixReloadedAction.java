@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 
@@ -37,6 +39,8 @@ public class MatrixReloadedAction implements Action
 {
 	private AbstractBuild<?, ?> build;
 	private String checked = null;
+	
+	private static final Logger logger = Logger.getLogger( MatrixReloadedAction.class.getName() );
 	
 	enum BuildType
 	{
@@ -89,12 +93,14 @@ public class MatrixReloadedAction implements Action
 		
         Iterator<?> it = formData.keys();
         
-        System.out.println( "[MRP] The MATRIX RELOADED FORM has been submitted" );
-        System.out.println( "[WOLLE] FORM=" + formData.toString( 2 ) );
-        
+        logger.info( "[MRP] The MATRIX RELOADED FORM has been submitted" );
+        logger.fine( formData.toString( 2 ) );
+                
         /* UUID */
         String uuid = build.getProject().getDisplayName() + "_" + build.getNumber() + "_" + System.currentTimeMillis();
         BuildState bs = MatrixReloadedState.getInstance().getBuildState( uuid );
+        
+        logger.fine( "UUID given: " + uuid );
         
         /* Generate the parameters */
         while( it.hasNext() )
@@ -147,7 +153,6 @@ public class MatrixReloadedAction implements Action
         	}
         }
         
-        /* TODO this only registers the default values of the parameters, this should work now */
         /* Get the parameters of the build, if any and add them to the build */
         //ParametersDefinitionProperty paramDefprop = build.getProject().getProperty(ParametersDefinitionProperty.class);
         ParametersAction actions = build.getAction( ParametersAction.class );
@@ -159,7 +164,6 @@ public class MatrixReloadedAction implements Action
         		//if( !pv.getName().startsWith( Definitions.prefix ) )
         		if( !pv.getName().equals( "uuid" ) )
         		{
-        			System.out.println( "[WOLLE] adding " + pv.getName() );
         			values.add( pv );
         		}        		
         	}

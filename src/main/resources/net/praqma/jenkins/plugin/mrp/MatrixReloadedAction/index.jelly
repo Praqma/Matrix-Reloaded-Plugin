@@ -44,29 +44,18 @@ function click2Change( status )
 				<j:arg value="hudson.model.AbstractBuild" />
 			</j:invoke>
 
-
-			IT=${it}
-			<br />
 			<j:set var="build" value="${request.findAncestorObject(buildClass)}" />
-			BUILD=${build}
 			
 	<j:choose>
 		<j:when test="${it.getChecked()==null}">
-			I'm guessing MatrixBuild
 			<j:set var="o" value="${build.layouter}" />
 			<j:set var="defaultChecked" value="" />
 		</j:when>
 		<j:otherwise>
-			I'm guessing MatrixRun
 			<j:set var="o" value="${build.getParentBuild().layouter}" />
 			<j:set var="defaultChecked" value="${it.getChecked()}" />
 		</j:otherwise>
 	</j:choose>
-			DC="${defaultChecked}"
-			<br />
-			
-			O ${o}
-			<br />
 			<div id='matrix'>
 				<f:form method="post" action="configSubmit" name="matrixreloaded">
 					<j:set var="prefix" value="${it.getPrefix()}" />
@@ -125,8 +114,6 @@ function click2Change( status )
 							</table>
 						</j:otherwise>
 					</j:choose>
-					<!-- <j:if test="${ajax==null and attrs.autoRefresh and !h.isAutoRefresh(request)}"> 
-						<script defer="defer"> refreshPart('matrix',"./ajaxMatrix"); </script> </j:if> -->
 					<input type="hidden" name="${it.getPrefix()}NUMBER" value="${build.number}" />
 					<br />
 					

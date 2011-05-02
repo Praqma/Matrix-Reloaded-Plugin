@@ -61,9 +61,7 @@ public class MatrixReloadedListener extends RunListener<Run>
 
             int mnumber = bs.rebuildNumber;
             run.setRedoRun( mnumber, bs.getConfiguration( mr.getParent().getCombination().toString() ) );
-            
-            /* Let's try to remove the build state */
-            bs.remove();
+            bs.removeConfiguration( mr.getParent().getCombination().toString() );
 		}
 	}
 	

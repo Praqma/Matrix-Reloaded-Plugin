@@ -1,7 +1,9 @@
 package net.praqma.jenkins.plugin.mrp;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This class is used to pass parameters from a form to a Run, given a uuid.
@@ -41,7 +43,7 @@ public class MatrixReloadedState
 		
 		/**
 		 * Add a configuration to the build state
-		 * @param config The {@link hudson.matrix.MatrixConfiguration} given as its {@link hudson.matrix.Combination}
+		 * @param config A String representing the {@link hudson.matrix.MatrixConfiguration} given as its {@link hudson.matrix.Combination}
 		 * @param reuse A boolean to determine whether to reuse the {@link hudson.model.Run} or not
 		 */
 		public void addConfiguration( String config, boolean reuse )
@@ -58,6 +60,21 @@ public class MatrixReloadedState
 		}
 		
 		/**
+		 * Remove a configuration from the build state
+		 * @param config A String representing a {@link hudson.matrix.MatrixConfiguration} given as its {@link hudson.matrix.Combination}
+		 */
+		public void removeConfiguration( String config )
+		{
+			configurations.remove( config );
+			
+			/* Check if empty */
+			if( configurations.isEmpty() )
+			{
+				remove();
+			}
+		}
+		
+		/**
 		 * Returns whether or not to reuse the {@link hudson.model.Run}
 		 * @param config A {@link hudson.matrix.MatrixConfiguration} given as its {@link hudson.matrix.Combination}
 		 * @return A boolean determining whether or nor to reuse the {@link hudson.model.Run}
@@ -70,6 +87,22 @@ public class MatrixReloadedState
 			}
 			
 			return false;
+		}
+		
+		public String toString()
+		{
+			Set<String> keys = configurations.keySet();
+			Iterator<String> it = keys.iterator();
+			
+			StringBuffer sb = new StringBuffer();
+			
+			while( it.hasNext() )
+			{
+				String s = it.next();
+				sb.append( s + ": " + configurations.get( s ) + "\n" );
+			}
+			
+			return sb.toString();
 		}
 	}
 

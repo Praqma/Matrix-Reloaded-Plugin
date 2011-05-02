@@ -145,4 +145,26 @@ public class MatrixReloadedActionTest extends HudsonTestCase
 		mra.performConfig( mb, form );
 	}
 	
+	public void testFormFalseParms() throws IOException, InterruptedException, ExecutionException
+	{
+		/* Create a previous build */
+		init();
+		
+		MatrixProject mp = createMatrixProject( "test" );
+		mp.setAxes( axes );
+		
+		MatrixBuild mb = mp.scheduleBuild2( 0 ).get();
+		
+		/* Create form elements */
+		JSONObject form = new JSONObject();
+		
+		form.element( "MRP::NUMBER", 1 );
+		
+		form.element( "MRPFALSE1", false );
+		form.element( "MRPFALSE2", true );
+		
+		MatrixReloadedAction mra = new MatrixReloadedAction();
+		mra.performConfig( mb, form );
+	}
+	
 }
