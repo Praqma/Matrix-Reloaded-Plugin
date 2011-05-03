@@ -1,21 +1,21 @@
-package net.praqma.jenkins.plugin.mrp;
+package net.praqma.jenkins.plugin.reloaded;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 
-import net.praqma.jenkins.plugin.mrp.MatrixReloadedState.BuildState;
+import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState.BuildState;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
+import hudson.matrix.Combination;
 import hudson.matrix.MatrixRun;
 import hudson.matrix.MatrixBuild;
 import hudson.model.AbstractBuild;
@@ -23,10 +23,8 @@ import hudson.model.Action;
 import hudson.model.Cause;
 import hudson.model.CauseAction;
 import hudson.model.Hudson;
-import hudson.model.ParameterDefinition;
 import hudson.model.ParameterValue;
 import hudson.model.ParametersAction;
-import hudson.model.ParametersDefinitionProperty;
 import hudson.model.StringParameterValue;
 
 /**
@@ -58,18 +56,17 @@ public class MatrixReloadedAction implements Action
 
 	public String getDisplayName()
 	{
-		return "Matrix Reloaded";
+		return Definitions.displayName;
 	}
 
 	public String getIconFileName()
 	{
-		//return "matrix_small.png";
-		return "/plugin/mrp/images/matrix_small.png";
+		return Definitions.iconFileName;
 	}
 
 	public String getUrlName()
 	{
-		return "matrix-reloaded";
+		return Definitions.urlName;
 	}
 	
 	public AbstractBuild<?, ?> getBuild()
@@ -126,7 +123,7 @@ public class MatrixReloadedAction implements Action
 	        		/* Add parameter to the build state */
 	        		if( vs.length > 1 )
 	        		{
-	        			bs.addConfiguration( vs[1], rebuild );
+	        			bs.addConfiguration( Combination.fromString( vs[1] ), rebuild );
 	        		}
         		}
         		catch( JSONException e )
@@ -154,7 +151,6 @@ public class MatrixReloadedAction implements Action
         }
         
         /* Get the parameters of the build, if any and add them to the build */
-        //ParametersDefinitionProperty paramDefprop = build.getProject().getProperty(ParametersDefinitionProperty.class);
         ParametersAction actions = build.getAction( ParametersAction.class );
         if( actions != null )
         {
@@ -206,7 +202,7 @@ public class MatrixReloadedAction implements Action
 		performConfig( build, formData );
         
         /* Depending on where the form was submitted, the number
-         * of levels to ... */
+         * of levels to direct */
         if( type.equals( BuildType.MATRIXRUN ) )
         {
         	rsp.sendRedirect( "../../../" );

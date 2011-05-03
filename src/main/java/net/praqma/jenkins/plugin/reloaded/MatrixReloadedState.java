@@ -1,4 +1,6 @@
-package net.praqma.jenkins.plugin.mrp;
+package net.praqma.jenkins.plugin.reloaded;
+
+import hudson.matrix.Combination;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,9 +48,9 @@ public class MatrixReloadedState
 		 * @param config A String representing the {@link hudson.matrix.MatrixConfiguration} given as its {@link hudson.matrix.Combination}
 		 * @param reuse A boolean to determine whether to reuse the {@link hudson.model.Run} or not
 		 */
-		public void addConfiguration( String config, boolean reuse )
+		public void addConfiguration( Combination combination, boolean reuse )
 		{
-			this.configurations.put( config, reuse );
+			this.configurations.put( combination.toString(), reuse );
 		}
 		
 		/**
@@ -61,11 +63,11 @@ public class MatrixReloadedState
 		
 		/**
 		 * Remove a configuration from the build state
-		 * @param config A String representing a {@link hudson.matrix.MatrixConfiguration} given as its {@link hudson.matrix.Combination}
+		 * @param combination A {@link hudson.matrix.MatrixConfiguration} given as its {@link hudson.matrix.Combination}
 		 */
-		public void removeConfiguration( String config )
+		public void removeConfiguration( Combination combination )
 		{
-			configurations.remove( config );
+			configurations.remove( combination.toString() );
 			
 			/* Check if empty */
 			if( configurations.isEmpty() )
@@ -76,14 +78,14 @@ public class MatrixReloadedState
 		
 		/**
 		 * Returns whether or not to reuse the {@link hudson.model.Run}
-		 * @param config A {@link hudson.matrix.MatrixConfiguration} given as its {@link hudson.matrix.Combination}
+		 * @param combination A {@link hudson.matrix.MatrixConfiguration} given as its {@link hudson.matrix.Combination}
 		 * @return A boolean determining whether or nor to reuse the {@link hudson.model.Run}
 		 */
-		public boolean getConfiguration( String config )
+		public boolean getConfiguration( Combination combination )
 		{
-			if( configurations.containsKey( config ) )
+			if( configurations.containsKey( combination.toString() ) )
 			{
-				return configurations.get( config );
+				return configurations.get( combination.toString() );
 			}
 			
 			return false;

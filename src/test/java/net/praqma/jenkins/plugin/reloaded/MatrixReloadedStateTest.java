@@ -1,6 +1,8 @@
-package net.praqma.jenkins.plugin.mrp;
+package net.praqma.jenkins.plugin.reloaded;
 
-import net.praqma.jenkins.plugin.mrp.MatrixReloadedState.BuildState;
+import hudson.matrix.Combination;
+import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState;
+import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState.BuildState;
 
 import org.jvnet.hudson.test.HudsonTestCase;
 
@@ -29,12 +31,12 @@ public class MatrixReloadedStateTest extends HudsonTestCase
 		assertNotNull( bs );
 		
 		bs.rebuildNumber = 1;
-		bs.addConfiguration( "a=1", false );
-		bs.addConfiguration( "a=2", true );
+		bs.addConfiguration( Combination.fromString( "a=1" ), false );
+		bs.addConfiguration( Combination.fromString( "a=2" ), true );
 		
-		assertFalse( bs.getConfiguration( "a=1" ) );
-		assertTrue( bs.getConfiguration( "a=2" ) );
-		assertFalse( bs.getConfiguration( "a=3" ) );
+		assertFalse( bs.getConfiguration( Combination.fromString( "a=1" ) ) );
+		assertTrue( bs.getConfiguration( Combination.fromString( "a=2" ) ) );
+		assertFalse( bs.getConfiguration( Combination.fromString( "a=3" ) ) );
 		assertEquals( 1, bs.rebuildNumber );
 		
 		bs.remove();
@@ -58,12 +60,12 @@ public class MatrixReloadedStateTest extends HudsonTestCase
 	{
 		BuildState bs = MatrixReloadedState.getInstance().getBuildState( "test" );
 		
-		bs.addConfiguration( "c1", true );
-		bs.addConfiguration( "c2", false );
+		bs.addConfiguration( Combination.fromString( "c1=1" ), true );
+		bs.addConfiguration( Combination.fromString( "c2=2" ), false );
 		
 		String s = bs.toString();
 		
-		assertEquals( "c1: true\nc2: false\n", s );
+		assertEquals( "c1=1: true\nc2=2: false\n", s );
 		
 		bs.remove();
 	}
@@ -72,11 +74,11 @@ public class MatrixReloadedStateTest extends HudsonTestCase
 	{
 		BuildState bs = MatrixReloadedState.getInstance().getBuildState( "test" );
 		
-		bs.addConfiguration( "c1", true );
-		bs.addConfiguration( "c2", false );
+		bs.addConfiguration( Combination.fromString( "c1=1" ), true );
+		bs.addConfiguration( Combination.fromString( "c2=2" ), false );
 		
-		bs.removeConfiguration( "c1" );
-		bs.removeConfiguration( "c2" );
+		bs.removeConfiguration( Combination.fromString( "c1=1" ) );
+		bs.removeConfiguration( Combination.fromString( "c2=2" ) );
 		
 		assertEquals( 0, bs.size() );
 		assertFalse( MatrixReloadedState.getInstance().exists( "test" ) );

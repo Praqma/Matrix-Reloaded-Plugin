@@ -1,4 +1,4 @@
-package net.praqma.jenkins.plugin.mrp;
+package net.praqma.jenkins.plugin.reloaded;
 
 import java.io.IOException;
 

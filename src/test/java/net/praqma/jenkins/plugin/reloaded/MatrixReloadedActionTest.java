@@ -1,4 +1,4 @@
-package net.praqma.jenkins.plugin.mrp;
+package net.praqma.jenkins.plugin.reloaded;
 
 import hudson.matrix.Axis;
 import hudson.matrix.AxisList;
@@ -20,11 +20,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import net.praqma.jenkins.plugin.mrp.MatrixReloadedAction.BuildType;
-import net.praqma.jenkins.plugin.mrp.MatrixReloadedState.BuildState;
+import net.praqma.jenkins.plugin.reloaded.MatrixReloadedAction;
+import net.praqma.jenkins.plugin.reloaded.MatrixReloadedAction.BuildType;
 import net.sf.json.JSONObject;
 
-import org.junit.BeforeClass;
 import org.jvnet.hudson.test.HudsonTestCase;
 
 public class MatrixReloadedActionTest extends HudsonTestCase
@@ -33,21 +32,42 @@ public class MatrixReloadedActionTest extends HudsonTestCase
 	{
 		MatrixReloadedAction mra = new MatrixReloadedAction();
 		
-		assertEquals( mra.getDisplayName(), "Matrix Reloaded" );
+		assertEquals( mra.getDisplayName(), Definitions.displayName );
 	}
 	
 	public void testGetIconFileName()
 	{
 		MatrixReloadedAction mra = new MatrixReloadedAction();
 		
-		assertEquals( mra.getIconFileName(), "/plugin/mrp/images/matrix_small.png" );
+		assertEquals( mra.getIconFileName(), Definitions.iconFileName );
 	}
 	
 	public void testGetUrlName()
 	{
 		MatrixReloadedAction mra = new MatrixReloadedAction();
 		
-		assertEquals( mra.getUrlName(), "matrix-reloaded" );
+		assertEquals( mra.getUrlName(), Definitions.urlName );
+	}
+	
+	public void testGetBuild() throws IOException, InterruptedException, ExecutionException
+	{
+		/* Create a previous build */
+		init();
+		
+		MatrixProject mp = createMatrixProject( "test" );
+		mp.setAxes( axes );
+		
+		MatrixBuild mb = mp.scheduleBuild2( 0 ).get();
+		
+        MatrixReloadedAction action = mb.getAction( MatrixReloadedAction.class );
+        assertNotNull( action );
+	}
+	
+	public void testPrefix()
+	{
+		MatrixReloadedAction mra = new MatrixReloadedAction();
+		
+		assertEquals( mra.getPrefix(), Definitions.prefix );
 	}
 	
 	public void testGetChecked1()

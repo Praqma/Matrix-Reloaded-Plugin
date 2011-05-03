@@ -1,10 +1,11 @@
-package net.praqma.jenkins.plugin.mrp;
+package net.praqma.jenkins.plugin.reloaded;
 
 import java.util.List;
 
-import net.praqma.jenkins.plugin.mrp.MatrixReloadedState.BuildState;
+import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState.BuildState;
 
 import hudson.Extension;
+import hudson.matrix.Combination;
 import hudson.matrix.MatrixRun;
 import hudson.matrix.MatrixBuild;
 import hudson.model.AbstractBuild;
@@ -36,17 +37,15 @@ public class MatrixReloadedListener extends RunListener<Run>
 		/* Test for MatrixRun */
 		if( run instanceof MatrixRun )
 		{
-			StringParameterValue uuid;
-			try
+			List<ParametersAction> actionList = run.getActions( ParametersAction.class );
+			/* This is not a Matrix Reloaded instance */
+			if( actionList.size() == 0 )
 			{
-				List<ParameterValue> pvs = run.getActions( ParametersAction.class ).get(0).getParameters();
-				uuid = (StringParameterValue)getParameterValue( pvs, "uuid" );
-			}
-			catch( ArrayIndexOutOfBoundsException e )
-			{
-				/* This is not a Matrix Reloaded instance */
 				return;
 			}
+			
+			List<ParameterValue> pvs = run.getActions( ParametersAction.class ).get(0).getParameters();
+			StringParameterValue uuid = (StringParameterValue)getParameterValue( pvs, "uuid" );
             
             MatrixRun mr = (MatrixRun)run;
             
@@ -60,8 +59,9 @@ public class MatrixReloadedListener extends RunListener<Run>
             BuildState bs = MatrixReloadedState.getInstance().getBuildState( uuid.value );
 
             int mnumber = bs.rebuildNumber;
-            run.setRedoRun( mnumber, bs.getConfiguration( mr.getParent().getCombination().toString() ) );
-            bs.removeConfiguration( mr.getParent().getCombination().toString() );
+            Combination combination = mr.getParent().getCombination();
+            run.setRedoRun( mnumber, bs.getConfiguration( combination ) );
+            bs.removeConfiguration( combination );
 		}
 	}
 	
@@ -104,6 +104,7 @@ public class MatrixReloadedListener extends RunListener<Run>
 		{
 			AbstractBuild<?, ?> build = (AbstractBuild<?, ?>)run;
 
+			/* Only add the action if there isn't one already => if its not a reuse. */
 			if( run.getRedoRun() == null || run.getRedoRun().rebuild )
 			{
 				MatrixReloadedAction action = new MatrixReloadedAction( ( (MatrixRun)run ).getParent().getCombination().toString() );

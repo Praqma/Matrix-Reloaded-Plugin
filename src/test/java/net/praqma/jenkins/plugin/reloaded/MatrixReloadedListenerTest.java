@@ -1,4 +1,4 @@
-package net.praqma.jenkins.plugin.mrp;
+package net.praqma.jenkins.plugin.reloaded;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,7 +16,8 @@ import hudson.matrix.MatrixProject;
 import hudson.model.ParameterValue;
 import hudson.model.Result;
 
-import net.praqma.jenkins.plugin.mrp.MatrixReloadedState.BuildState;
+import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState;
+import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState.BuildState;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
