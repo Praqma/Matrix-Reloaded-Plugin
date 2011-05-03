@@ -5,6 +5,7 @@ import hudson.matrix.AxisList;
 import hudson.matrix.Combination;
 import hudson.matrix.MatrixBuild;
 import hudson.matrix.MatrixProject;
+import hudson.model.AbstractBuild;
 import hudson.model.Cause;
 import hudson.model.ParameterValue;
 import hudson.model.ParameterDefinition;
@@ -49,19 +50,20 @@ public class MatrixReloadedActionTest extends HudsonTestCase
 		assertEquals( mra.getUrlName(), Definitions.urlName );
 	}
 	
-	public void testGetBuild() throws IOException, InterruptedException, ExecutionException
-	{
-		/* Create a previous build */
-		init();
-		
-		MatrixProject mp = createMatrixProject( "test" );
-		mp.setAxes( axes );
-		
-		MatrixBuild mb = mp.scheduleBuild2( 0 ).get();
-		
-        MatrixReloadedAction action = mb.getAction( MatrixReloadedAction.class );
-        assertNotNull( action );
-	}
+//	public void testGetBuild() throws IOException, InterruptedException, ExecutionException
+//	{
+//		/* Create a previous build */
+//		init();
+//		
+//		MatrixProject mp = createMatrixProject( "test" );
+//		mp.setAxes( axes );
+//		
+//		MatrixBuild mb = mp.scheduleBuild2( 0 ).get();
+//		
+//        MatrixReloadedAction action = mb.getAction( MatrixReloadedAction.class );
+//        assertNotNull( action );
+//        assertTrue( action.getBuild() instanceof AbstractBuild<?, ?> );
+//	}
 	
 	public void testPrefix()
 	{
@@ -116,14 +118,14 @@ public class MatrixReloadedActionTest extends HudsonTestCase
 		MatrixProject mp = createMatrixProject( "test" );
 		mp.setAxes( axes );
 		List<ParameterDefinition> list = new ArrayList<ParameterDefinition>();
-		list.add( new StringParameterDefinition( "Tetst", "wolle" ) );
+		list.add( new StringParameterDefinition( "key", "value" ) );
 		ParametersDefinitionProperty pdp = new ParametersDefinitionProperty( list );
 		mp.addProperty( pdp );
 		
 		
 		/* Create some parameters to test continuation of parameters from reused to new build */
 		List<ParameterValue> values = new ArrayList<ParameterValue>();
-		values.add( new StringParameterValue( "testParm", "value" ) );
+		values.add( new StringParameterValue( "key", "value" ) );
 		
 		MatrixBuild mb = mp.scheduleBuild2( 0, new Cause.UserCause(), new ParametersAction( values ) ).get();
 		
@@ -136,6 +138,7 @@ public class MatrixReloadedActionTest extends HudsonTestCase
 		form.element( "MRP::dim1=1,dim2=b", true );
 		form.element( "MRP::dim1=2,dim2=a", true );
 		form.element( "MRP::dim1=2,dim2=b", false );
+		form.element( "MRP::", false );
 		
 		MatrixReloadedAction mra = new MatrixReloadedAction();
 		mra.performConfig( mb, form );
@@ -187,4 +190,37 @@ public class MatrixReloadedActionTest extends HudsonTestCase
 		mra.performConfig( mb, form );
 	}
 	
+	public void testFormFalseNumberParm() throws IOException, InterruptedException, ExecutionException
+	{
+		/* Create a previous build */
+		init();
+		
+		MatrixProject mp = createMatrixProject( "test" );
+		mp.setAxes( axes );
+		
+		MatrixBuild mb = mp.scheduleBuild2( 0 ).get();
+		
+		/* Create form elements */
+		JSONObject form = new JSONObject();
+		
+		form.element( "MRP::NUMBER", "fail" );
+		
+		MatrixReloadedAction mra = new MatrixReloadedAction();
+		mra.performConfig( mb, form );
+	}
+	
+	public void testEnv() throws IOException, InterruptedException, ExecutionException
+	{
+		/* Create a previous build */
+		init();
+		
+		MatrixProject mp = createMatrixProject( "test" );
+		mp.setAxes( axes );
+		
+		MatrixBuild mb = mp.scheduleBuild2( 0 ).get();
+		
+		MatrixReloadedEnvironmentContributor mrec = new MatrixReloadedEnvironmentContributor();
+		mrec.buildEnvironmentFor( mb, mb.getEnvironment( null ), null );
+	}
+
 }
