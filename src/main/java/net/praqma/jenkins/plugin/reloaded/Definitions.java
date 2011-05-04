@@ -1,13 +1,13 @@
 package net.praqma.jenkins.plugin.reloaded;
 
-public class Definitions
+public abstract class Definitions
 {
-	public static final String prefix     = "MRP::";
-	public static final String delimiter  = "::";
+	public static final String __PREFIX     = "MRP::";
+	public static final String __DELIMITER  = "::";
 	
-	public static final String rebuildJobVarName = "REBUILD";
+	public static final String __REBUILD_VAR_NAME = "REBUILD";
 	
-	public static final String displayName  = "Matrix Reloaded";
-	public static final String iconFileName = "/plugin/matrix-reloaded/images/matrix_small.png";
-	public static final String urlName      = "matrix-reloaded";
+	public static final String __DISPLAY_NAME   = "Matrix Reloaded";
+	public static final String __ICON_FILE_NAME = "/plugin/matrix-reloaded/images/matrix_small.png";
+	public static final String __URL_NAME       = "matrix-reloaded";
 }

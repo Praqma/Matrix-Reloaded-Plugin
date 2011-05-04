@@ -1,3 +1,4 @@
+
 package net.praqma.jenkins.plugin.reloaded;
 
 import java.io.IOException;
@@ -9,13 +10,11 @@ import hudson.model.TaskListener;
 import hudson.model.Run;
 
 @Extension
-public class MatrixReloadedEnvironmentContributor extends EnvironmentContributor
-{
-	public void buildEnvironmentFor( Run r, EnvVars envs, TaskListener listener ) throws IOException, InterruptedException
-	{
-		if( r.getRedoRun() != null )
-		{
-			envs.put( Definitions.rebuildJobVarName, r.getRedoRun().number + "" );
-		}
-	}
+public class MatrixReloadedEnvironmentContributor extends EnvironmentContributor {
+    public void buildEnvironmentFor(Run r, EnvVars envs, TaskListener listener) throws IOException,
+            InterruptedException {
+        if (r.getRedoRun() != null) {
+            envs.put(Definitions.__REBUILD_VAR_NAME, r.getRedoRun().number + "");
+        }
+    }
 }
