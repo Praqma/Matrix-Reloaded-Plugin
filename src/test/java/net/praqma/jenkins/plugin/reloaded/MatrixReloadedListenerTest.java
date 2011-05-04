@@ -44,9 +44,7 @@ import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState;
 import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState.BuildState;
 
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.jvnet.hudson.test.HudsonTestCase;
-import org.kohsuke.stapler.StaplerRequest;
 
 public class MatrixReloadedListenerTest extends HudsonTestCase {
     private AxisList axes = null;

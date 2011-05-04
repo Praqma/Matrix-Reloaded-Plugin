@@ -29,6 +29,8 @@ public abstract class Definitions
 	public static final String __PREFIX     = "MRP::";
 	public static final String __DELIMITER  = "::";
 	
+	public static final String __UUID       = "uuid";
+	
 	public static final String __REBUILD_VAR_NAME = "REBUILD";
 	
 	public static final String __DISPLAY_NAME   = "Matrix Reloaded";

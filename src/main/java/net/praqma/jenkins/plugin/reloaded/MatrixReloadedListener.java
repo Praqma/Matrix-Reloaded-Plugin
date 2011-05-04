@@ -64,7 +64,7 @@ public class MatrixReloadedListener extends RunListener<Run> {
             }
 
             List<ParameterValue> pvs = actionList.get(0).getParameters();
-            StringParameterValue uuid = (StringParameterValue)getParameterValue(pvs, "uuid");
+            StringParameterValue uuid = (StringParameterValue)getParameterValue(pvs, Definitions.__UUID);
 
             MatrixRun mr = (MatrixRun)run;
 

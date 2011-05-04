@@ -165,14 +165,14 @@ public class MatrixReloadedAction implements Action {
             List<ParameterValue> list = actions.getParameters();
             for (ParameterValue pv : list) {
                 // if( !pv.getName().startsWith( Definitions.prefix ) )
-                if (!pv.getName().equals("uuid")) {
+                if (!pv.getName().equals(Definitions.__UUID)) {
                     values.add(pv);
                 }
             }
         }
 
         /* Add the UUID to the new build. */
-        values.add(new StringParameterValue("uuid", uuid));
+        values.add(new StringParameterValue(Definitions.__UUID, uuid));
 
         /* Schedule the MatrixBuild */
         Hudson.getInstance()
