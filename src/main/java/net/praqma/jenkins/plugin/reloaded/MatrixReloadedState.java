@@ -61,7 +61,7 @@ public class MatrixReloadedState {
 
         public String uuid;
 
-        public int rebuildNumber;
+        public int rebuildNumber = 0;
 
         BuildState(String uuid) {
             this.uuid = uuid;
@@ -103,11 +103,13 @@ public class MatrixReloadedState {
         }
 
         /**
-         * Returns whether or not to reuse the {@link hudson.model.Run}
+         * Returns whether or not to rebuild the {@link hudson.model.Run}
+         * If the combination is not in the database, the method returns true,
+         * meaning the run will build.
          * 
          * @param combination A {@link hudson.matrix.MatrixConfiguration} given
          *            as its {@link hudson.matrix.Combination}
-         * @return A boolean determining whether or nor to reuse the
+         * @return A boolean determining whether or nor to rebuild the
          *         {@link hudson.model.Run}
          */
         public boolean getConfiguration(Combination combination) {
@@ -115,7 +117,7 @@ public class MatrixReloadedState {
                 return configurations.get(combination.toString());
             }
 
-            return false;
+            return true;
         }
 
         public String toString() {
