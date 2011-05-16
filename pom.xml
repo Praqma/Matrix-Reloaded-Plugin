@@ -10,7 +10,7 @@
 
 	<groupId>net.praqma</groupId>
 	<artifactId>matrix-reloaded</artifactId>
-	<version>0.1.12-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<name>Matrix Reloaded Plugin</name>
 	<packaging>hpi</packaging>
 	
