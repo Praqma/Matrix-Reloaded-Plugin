@@ -29,10 +29,6 @@ public class MatrixReloadedBuildListener extends MatrixBuildListener{
         BuildState bs = MatrixReloadedState.getInstance().getBuildState(uuid.value);
         
         return bs.getConfiguration(c.getCombination());
-        //c.getCombination()
-        
-		//System.out.println("Wolle was here....");
-		//return true;
 	}
 	
     /**

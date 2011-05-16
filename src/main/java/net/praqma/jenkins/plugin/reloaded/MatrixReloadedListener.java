@@ -48,40 +48,11 @@ import hudson.model.listeners.RunListener;
  */
 @Extension
 public class MatrixReloadedListener extends RunListener<Run> {
+	
     public MatrixReloadedListener() {
         super(Run.class);
     }
 
-//    @Override
-//    public void onStarted(Run run, TaskListener listener) {
-//        /* First try to find the correct parameter for the project */
-//        /* Test for MatrixRun */
-//        if (run instanceof MatrixRun) {
-//            List<ParametersAction> actionList = run.getActions(ParametersAction.class);
-//            /* This is not a Matrix Reloaded instance */
-//            if (actionList.size() == 0) {
-//                return;
-//            }
-//
-//            List<ParameterValue> pvs = actionList.get(0).getParameters();
-//            StringParameterValue uuid = (StringParameterValue)getParameterValue(pvs, Definitions.__UUID);
-//
-//            MatrixRun mr = (MatrixRun)run;
-//
-//            /* This run is not related to a matrix reloaded build */
-//            if (uuid == null) {
-//                return;
-//            }
-//
-//            /* Retrieve the build state and set the RedoRun object */
-//            BuildState bs = MatrixReloadedState.getInstance().getBuildState(uuid.value);
-//
-//            int mnumber = bs.rebuildNumber;
-//            Combination combination = mr.getParent().getCombination();
-//            //run.setRedoRun(mnumber, bs.getConfiguration(combination));
-//            bs.removeConfiguration(combination);
-//        }
-//    }
 
     /**
      * Convenience method for retrieving {@link ParameterValue}s.
@@ -117,17 +88,6 @@ public class MatrixReloadedListener extends RunListener<Run> {
         if (run instanceof MatrixRun) {
             AbstractBuild<?, ?> build = (AbstractBuild<?, ?>)run;
 
-            /*
-             * Only add the action if there isn't one already => if its not a
-             * reuse.
-             */
-            /*
-            if (run.getRedoRun() == null || run.getRedoRun().rebuild) {
-                MatrixReloadedAction action = new MatrixReloadedAction(((MatrixRun)run).getParent()
-                        .getCombination().toString());
-                build.getActions().add(action);
-            }
-            */
             MatrixReloadedAction action = new MatrixReloadedAction(((MatrixRun)run).getParent().getCombination().toString());
             build.getActions().add(action);
         }
