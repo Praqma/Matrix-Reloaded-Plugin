@@ -30,6 +30,11 @@ import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState.BuildState;
 
 import org.jvnet.hudson.test.HudsonTestCase;
 
+/**
+ * Class for testing the state class
+ * @author wolfgang
+ *
+ */
 public class MatrixReloadedStateTest extends HudsonTestCase {
     public void testInstance() {
         MatrixReloadedState mrs = MatrixReloadedState.getInstance();

@@ -46,6 +46,11 @@ import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState.BuildState;
 import org.junit.BeforeClass;
 import org.jvnet.hudson.test.HudsonTestCase;
 
+/**
+ * Class for testing the Run Listener implementation
+ * @author wolfgang
+ *
+ */
 public class MatrixReloadedListenerTest extends HudsonTestCase {
     private AxisList axes = null;
 
