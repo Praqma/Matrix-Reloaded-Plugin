@@ -82,8 +82,6 @@ public class MatrixReloadedListenerTest extends HudsonTestCase {
         MatrixRun mr = mb.getRun(c);
         Result r = mr.getResult();
 
-        System.out.println("---->" + r.toString());
-
         assertNotNull(mb);
     }
 
@@ -92,13 +90,10 @@ public class MatrixReloadedListenerTest extends HudsonTestCase {
 
         MatrixProject mp = createMatrixProject("test");
         mp.setAxes(axes);
-        // mp.addAction( new MatrixReloadedAction() );
 
         MatrixBuild mb = mp.scheduleBuild2(0).get();
         MatrixRun mr = mb.getRun(c);
         Result r = mr.getResult();
-
-        System.out.println("---->" + r.toString());
 
         assertNotNull(mb);
     }

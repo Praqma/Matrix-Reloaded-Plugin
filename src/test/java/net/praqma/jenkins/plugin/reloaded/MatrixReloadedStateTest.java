@@ -56,7 +56,7 @@ public class MatrixReloadedStateTest extends HudsonTestCase {
 
         assertFalse(bs.getConfiguration(Combination.fromString("a=1")));
         assertTrue(bs.getConfiguration(Combination.fromString("a=2")));
-        assertFalse(bs.getConfiguration(Combination.fromString("a=3")));
+        assertTrue(bs.getConfiguration(Combination.fromString("a=3")));
         assertEquals(1, bs.rebuildNumber);
 
         bs.remove();
