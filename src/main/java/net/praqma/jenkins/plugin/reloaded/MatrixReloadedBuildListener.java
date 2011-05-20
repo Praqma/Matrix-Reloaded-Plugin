@@ -24,7 +24,18 @@ public class MatrixReloadedBuildListener extends MatrixBuildListener{
         }
         
         List<ParameterValue> pvs = actionList.get(0).getParameters();
+        
+        /* If the list is null */
+        if( pvs == null ) {
+        	return true;
+        }
+        
         StringParameterValue uuid = (StringParameterValue)getParameterValue(pvs, Definitions.__UUID);
+        
+        /* If the uuid is not defined, return true */
+        if( uuid == null ) {
+        	return true;
+        }
         
         BuildState bs = MatrixReloadedState.getInstance().getBuildState(uuid.value);
         

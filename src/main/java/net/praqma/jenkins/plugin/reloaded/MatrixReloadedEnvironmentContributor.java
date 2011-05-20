@@ -51,7 +51,18 @@ public class MatrixReloadedEnvironmentContributor extends EnvironmentContributor
         }
         
         List<ParameterValue> pvs = actionList.get(0).getParameters();
+        
+        /* If the list is null */
+        if( pvs == null ) {
+        	return;
+        }
+        
         StringParameterValue uuid = (StringParameterValue)getParameterValue(pvs, Definitions.__UUID);
+        
+        /* If the uuid is not defined, return */
+        if( uuid == null ) {
+        	return;
+        }
         
         BuildState bs = MatrixReloadedState.getInstance().getBuildState(uuid.value);
 
