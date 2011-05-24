@@ -82,6 +82,14 @@ public class MatrixReloadedListener extends RunListener<Run> {
 
             MatrixReloadedAction action = new MatrixReloadedAction();
             build.getActions().add(action);
+            
+            /**/
+            BuildState bs = Util.getBuildStateFromRun(run);
+            if( bs == null ) {
+            	return;
+            }
+            
+            ((MatrixBuild)run).setLinkedNumber(bs.rebuildNumber);
         }
 
         /* Test for MatrixRun and add to context */
