@@ -53,22 +53,18 @@ public class MatrixReloadedListener extends RunListener<Run> {
         super(Run.class);
     }
 
-
-    /**
-     * Convenience method for retrieving {@link ParameterValue}s.
-     * 
-     * @param pvs A list of {@link ParameterValue}s.
-     * @param key The key of the {@link ParameterValue}.
-     * @return The parameter or null
-     */
-    private ParameterValue getParameterValue(List<ParameterValue> pvs, String key) {
-        for (ParameterValue pv : pvs) {
-            if (pv.getName().equals(key)) {
-                return pv;
+    @Override
+    public void onStarted(Run run, TaskListener listener)
+    {
+        if (run instanceof MatrixBuild) {
+            /**/
+            BuildState bs = Util.getBuildStateFromRun(run);
+            if( bs == null ) {
+            	return;
             }
+            
+            ((MatrixBuild)run).setLinkedNumber(bs.rebuildNumber);
         }
-
-        return null;
     }
 
     /**
@@ -82,14 +78,6 @@ public class MatrixReloadedListener extends RunListener<Run> {
 
             MatrixReloadedAction action = new MatrixReloadedAction();
             build.getActions().add(action);
-            
-            /**/
-            BuildState bs = Util.getBuildStateFromRun(run);
-            if( bs == null ) {
-            	return;
-            }
-            
-            ((MatrixBuild)run).setLinkedNumber(bs.rebuildNumber);
         }
 
         /* Test for MatrixRun and add to context */
