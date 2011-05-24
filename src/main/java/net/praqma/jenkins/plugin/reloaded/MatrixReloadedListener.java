@@ -24,20 +24,14 @@
 
 package net.praqma.jenkins.plugin.reloaded;
 
-import java.util.List;
-
 import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState.BuildState;
 
 import hudson.Extension;
-import hudson.matrix.Combination;
 import hudson.matrix.MatrixRun;
 import hudson.matrix.MatrixBuild;
 import hudson.model.AbstractBuild;
-import hudson.model.ParameterValue;
 import hudson.model.TaskListener;
-import hudson.model.ParametersAction;
 import hudson.model.Run;
-import hudson.model.StringParameterValue;
 import hudson.model.listeners.RunListener;
 
 /**
