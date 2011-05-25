@@ -41,6 +41,7 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 import hudson.matrix.Combination;
+import hudson.matrix.MatrixConfiguration;
 import hudson.matrix.MatrixRun;
 import hudson.matrix.MatrixBuild;
 import hudson.matrix.MatrixProject;
@@ -114,11 +115,14 @@ public class MatrixReloadedAction implements Action {
     		return false;
     	}
     	
-    	if( mp.getItem(c).isActiveConfiguration() ) {
-    		return true;
-    	}
+    	MatrixConfiguration mc = mp.getItem(c);
     	
-    	return false;
+    	/* Verify matrix configuration */
+    	if( mc == null || !mc.isActiveConfiguration() ) {
+    		return false;
+    	}    	
+    	    	
+    	return true;
     }
 
     public void performConfig(AbstractBuild<?, ?> build, JSONObject formData) {

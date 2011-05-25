@@ -31,6 +31,8 @@ import hudson.matrix.MatrixBuild;
 import hudson.matrix.MatrixProject;
 import hudson.model.AbstractBuild;
 import hudson.model.Cause;
+import hudson.model.FreeStyleProject;
+import hudson.model.FreeStyleBuild;
 import hudson.model.ParameterValue;
 import hudson.model.ParameterDefinition;
 import hudson.model.ParametersAction;
@@ -108,10 +110,77 @@ public class MatrixReloadedActionTest extends HudsonTestCase {
     public void testBuildType() {
         BuildType bt = BuildType.MATRIXBUILD;
     }
+    
+    
+   
+    
+    
+    public void testCombinationExists() throws InterruptedException, ExecutionException, IOException {
+        init();
+
+        MatrixProject mp = createMatrixProject("test");
+        mp.setAxes(axes);
+        List<ParameterDefinition> list = new ArrayList<ParameterDefinition>();
+        list.add(new StringParameterDefinition("key", "value"));
+        ParametersDefinitionProperty pdp = new ParametersDefinitionProperty(list);
+        mp.addProperty(pdp);
+
+        /*
+         * Create some parameters to test continuation of parameters from reused
+         * to new build
+         */
+        List<ParameterValue> values = new ArrayList<ParameterValue>();
+        values.add(new StringParameterValue("key", "value"));
+
+        MatrixBuild mb = mp.scheduleBuild2(0, new Cause.UserCause(), new ParametersAction(values)).get();
+        
+        MatrixReloadedAction mra = new MatrixReloadedAction();
+        
+        assertTrue( mra.combinationExists(mb, c_good) );
+    }
+    
+    public void testCombinationExists2() throws InterruptedException, ExecutionException, IOException {
+        init();
+
+        MatrixProject mp = createMatrixProject("test");
+        mp.setAxes(axes);
+        List<ParameterDefinition> list = new ArrayList<ParameterDefinition>();
+        list.add(new StringParameterDefinition("key", "value"));
+        ParametersDefinitionProperty pdp = new ParametersDefinitionProperty(list);
+        mp.addProperty(pdp);
+
+        /*
+         * Create some parameters to test continuation of parameters from reused
+         * to new build
+         */
+        List<ParameterValue> values = new ArrayList<ParameterValue>();
+        values.add(new StringParameterValue("key", "value"));
+
+        MatrixBuild mb = mp.scheduleBuild2(0, new Cause.UserCause(), new ParametersAction(values)).get();
+        
+        MatrixReloadedAction mra = new MatrixReloadedAction();
+        
+        assertFalse( mra.combinationExists(mb, c_bad) );
+    }    
+    
+
+    
+    public void testCombinationExists3() throws InterruptedException, ExecutionException, IOException {
+        init();
+
+        FreeStyleProject mp = createFreeStyleProject("test");
+
+        FreeStyleBuild mb = mp.scheduleBuild2(0, new Cause.UserCause(), new ParametersAction()).get();
+        
+        MatrixReloadedAction mra = new MatrixReloadedAction();
+        
+        assertFalse( mra.combinationExists(mb, c_good) );
+    }
 
     private AxisList axes = null;
 
-    private Combination c = null;
+    private Combination c_good = null;
+    private Combination c_bad = null;
 
     public void init() {
 
@@ -120,7 +189,12 @@ public class MatrixReloadedActionTest extends HudsonTestCase {
         Map<String, String> r = new HashMap<String, String>();
         r.put("dim1", "1");
         r.put("dim2", "a");
-        c = new Combination(r);
+        c_good = new Combination(r);
+        
+        Map<String, String> r2 = new HashMap<String, String>();
+        r2.put("dim1", "11");
+        r2.put("dim2", "a");
+        c_bad = new Combination(r2);
     }
 
     public void testForm() throws IOException, InterruptedException, ExecutionException {
