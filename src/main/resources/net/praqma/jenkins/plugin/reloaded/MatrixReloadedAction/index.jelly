@@ -80,6 +80,7 @@ function click2Change( status )
 		</j:otherwise>
 	</j:choose>
 			<div id='matrix'>
+				<j:set var="changed" value="0" />
 				<f:form method="post" action="configSubmit" name="matrixreloaded">
 					<j:set var="prefix" value="${it.getPrefix()}" />
 					<j:choose>
@@ -91,6 +92,9 @@ function click2Change( status )
 								<!-- <d:invokeBody /> -->
 								<st:include page="main.jelly" />
 								<st:nbsp />
+								<j:if test="${!it.combinationExists(build, p.combination)}">
+									<j:set var="changed" value="1" />
+								</j:if>
 							</j:forEach>
 						</j:when>
 						<j:otherwise>
@@ -128,6 +132,9 @@ function click2Change( status )
 															<!-- <d:invokeBody /> -->
 															<st:include page="main.jelly" />
 														</div>
+														<j:if test="${!it.combinationExists(build, p.combination)}">
+															<j:set var="changed" value="1" />
+														</j:if>
 													</j:forEach>
 												</j:choose>
 											</td>
@@ -139,6 +146,12 @@ function click2Change( status )
 					</j:choose>
 					<input type="hidden" name="${it.getPrefix()}NUMBER" value="${build.number}" />
 					<br />
+					
+					<j:if test="${changed==1}">
+						<br />
+						<span style="font-weight:bold;font-size:20px">${%Warning, configuration has changed}</span>
+						<br /><br />
+					</j:if>
 					
 					<span style="font-weight:bold">${%Select}: </span> 
 					<a href="#" onclick="click2Change(0);">${%Successful}</a> - 
