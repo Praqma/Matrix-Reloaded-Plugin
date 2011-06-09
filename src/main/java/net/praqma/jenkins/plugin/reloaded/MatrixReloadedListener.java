@@ -57,7 +57,10 @@ public class MatrixReloadedListener extends RunListener<Run> {
             	return;
             }
             
-            ((MatrixBuild)run).setLinkedNumber(bs.rebuildNumber);
+            MatrixBuild mb = (MatrixBuild)run;
+            MatrixBuild base = mb.getProject().getBuildByNumber(bs.rebuildNumber);
+            
+            ((MatrixBuild)run).setBaseBuild(base);
         }
     }
 
