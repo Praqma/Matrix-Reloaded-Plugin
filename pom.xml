@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.jenkins-ci.plugins</groupId>
 		<artifactId>plugin</artifactId>
-		<version>1.413</version><!-- which version of Jenkins is this plugin built 
+		<version>1.417</version><!-- which version of Jenkins is this plugin built 
 			against? -->
 	</parent>
 
@@ -11,6 +11,7 @@
 	<artifactId>matrix-reloaded</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<name>Matrix Reloaded Plugin</name>
+	<description>The Matrix Reloaded plugin. Used for rebuilding a subset of a matrix' configurations, reusing the rest.</description>
 	<packaging>hpi</packaging>
 	
 	<properties>
@@ -91,7 +92,7 @@
     </developers>
     
 	<scm>
-		<connection>scm:git:ssh://github.com/Praqma/Matrix-Reloaded-Plugin.git</connection>
+		<connection>scm:git:ssh://github.com/Praqma/MonKit.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/Praqma/Matrix-Reloaded-Plugin.git</developerConnection>
 		<url>https://github.com/Praqma/Matrix-Reloaded-Plugin.git</url>
 	</scm>
