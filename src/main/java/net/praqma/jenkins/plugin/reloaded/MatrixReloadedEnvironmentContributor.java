@@ -25,17 +25,12 @@
 package net.praqma.jenkins.plugin.reloaded;
 
 import java.io.IOException;
-import java.util.List;
 
 import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState.BuildState;
 
 import hudson.EnvVars;
 import hudson.Extension;
-import hudson.matrix.MatrixRun;
 import hudson.model.EnvironmentContributor;
-import hudson.model.ParameterValue;
-import hudson.model.ParametersAction;
-import hudson.model.StringParameterValue;
 import hudson.model.TaskListener;
 import hudson.model.Run;
 
@@ -44,41 +39,13 @@ public class MatrixReloadedEnvironmentContributor extends EnvironmentContributor
     public void buildEnvironmentFor(Run r, EnvVars envs, TaskListener listener) throws IOException,
             InterruptedException {
     	
-        List<ParametersAction> actionList = r.getActions(ParametersAction.class);
-
-        if (actionList.size() == 0) {
-            return;
-        }
-        
-        List<ParameterValue> pvs = actionList.get(0).getParameters();
-        
-        /* If the list is null */
-        if( pvs == null ) {
+        BuildState bs = Util.getBuildStateFromRun(r);
+        if( bs == null ) {
         	return;
         }
-        
-        StringParameterValue uuid = (StringParameterValue)getParameterValue(pvs, Definitions.__UUID);
-        
-        /* If the uuid is not defined, return */
-        if( uuid == null ) {
-        	return;
-        }
-        
-        BuildState bs = MatrixReloadedState.getInstance().getBuildState(uuid.value);
 
         if (bs.rebuildNumber > 0) {
             envs.put(Definitions.__REBUILD_VAR_NAME,bs.rebuildNumber + "");
         }
-        
-    }
-    
-    private ParameterValue getParameterValue(List<ParameterValue> pvs, String key) {
-        for (ParameterValue pv : pvs) {
-            if (pv.getName().equals(key)) {
-                return pv;
-            }
-        }
-
-        return null;
     }
 }
