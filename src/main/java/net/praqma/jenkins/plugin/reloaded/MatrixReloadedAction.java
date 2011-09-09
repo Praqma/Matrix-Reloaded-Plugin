@@ -36,12 +36,15 @@ import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState.BuildState;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
+import org.jfree.util.Log;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 import hudson.matrix.Combination;
+import hudson.matrix.MatrixConfiguration;
 import hudson.matrix.MatrixRun;
 import hudson.matrix.MatrixBuild;
+import hudson.matrix.MatrixProject;
 import hudson.model.AbstractBuild;
 import hudson.model.Action;
 import hudson.model.Cause;
@@ -97,6 +100,29 @@ public class MatrixReloadedAction implements Action {
 
     public String getChecked() {
         return this.checked;
+    }
+
+    public boolean combinationExists( AbstractBuild<?, ?> build, Combination c )
+    {
+    	MatrixProject mp = null;
+    	
+    	if(build instanceof MatrixBuild) {
+    		mp = (MatrixProject) build.getProject();
+    	} else if(build instanceof MatrixRun) {
+    		mp = ((MatrixRun)build).getParentBuild().getProject();
+    	} else {
+    		Log.warn("Unable to determine matrix project");
+    		return false;
+    	}
+    	
+    	MatrixConfiguration mc = mp.getItem(c);
+    	
+    	/* Verify matrix configuration */
+    	if( mc == null || !mc.isActiveConfiguration() ) {
+    		return false;
+    	}    	
+    	    	
+    	return true;
     }
 
     public void performConfig(AbstractBuild<?, ?> build, JSONObject formData) {

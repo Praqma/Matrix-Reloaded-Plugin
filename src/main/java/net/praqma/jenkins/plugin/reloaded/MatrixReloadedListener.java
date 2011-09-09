@@ -24,20 +24,14 @@
 
 package net.praqma.jenkins.plugin.reloaded;
 
-import java.util.List;
-
 import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState.BuildState;
 
 import hudson.Extension;
-import hudson.matrix.Combination;
 import hudson.matrix.MatrixRun;
 import hudson.matrix.MatrixBuild;
 import hudson.model.AbstractBuild;
-import hudson.model.ParameterValue;
 import hudson.model.TaskListener;
-import hudson.model.ParametersAction;
 import hudson.model.Run;
-import hudson.model.StringParameterValue;
 import hudson.model.listeners.RunListener;
 
 /**
@@ -53,22 +47,21 @@ public class MatrixReloadedListener extends RunListener<Run> {
         super(Run.class);
     }
 
-
-    /**
-     * Convenience method for retrieving {@link ParameterValue}s.
-     * 
-     * @param pvs A list of {@link ParameterValue}s.
-     * @param key The key of the {@link ParameterValue}.
-     * @return The parameter or null
-     */
-    private ParameterValue getParameterValue(List<ParameterValue> pvs, String key) {
-        for (ParameterValue pv : pvs) {
-            if (pv.getName().equals(key)) {
-                return pv;
+    @Override
+    public void onStarted(Run run, TaskListener listener)
+    {
+        if (run instanceof MatrixBuild) {
+            /**/
+            BuildState bs = Util.getBuildStateFromRun(run);
+            if( bs == null ) {
+            	return;
             }
+            
+            MatrixBuild mb = (MatrixBuild)run;
+            MatrixBuild base = mb.getProject().getBuildByNumber(bs.rebuildNumber);
+            
+            ((MatrixBuild)run).setBaseBuild(base);
         }
-
-        return null;
     }
 
     /**
