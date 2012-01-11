@@ -92,7 +92,7 @@
     </developers>
     
 	<scm>
-		<connection>scm:git:ssh://github.com/Praqma/MonKit.git</connection>
+		<connection>scm:git:ssh://github.com/Praqma/Matrix-Reloaded-Plugin.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/Praqma/Matrix-Reloaded-Plugin.git</developerConnection>
 		<url>https://github.com/Praqma/Matrix-Reloaded-Plugin.git</url>
 	</scm>
