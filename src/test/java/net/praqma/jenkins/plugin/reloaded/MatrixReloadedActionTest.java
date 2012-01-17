@@ -215,8 +215,7 @@ public class MatrixReloadedActionTest extends HudsonTestCase {
         List<ParameterValue> values = new ArrayList<ParameterValue>();
         values.add(new StringParameterValue("key", "value"));
 
-        MatrixBuild mb = mp.scheduleBuild2(0, new Cause.UserCause(), new ParametersAction(values))
-                .get();
+        MatrixBuild mb = mp.scheduleBuild2(0, new Cause.UserCause(), new ParametersAction(values)).get();
 
         /* Create form elements */
         JSONObject form = new JSONObject();

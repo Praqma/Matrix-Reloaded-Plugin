@@ -117,7 +117,7 @@ public class MatrixReloadedState {
                 return configurations.get(combination.toString());
             }
 
-            return true;
+            return false;
         }
 
         public String toString() {

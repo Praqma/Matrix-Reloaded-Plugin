@@ -127,13 +127,11 @@ public class MatrixReloadedAction implements Action {
     	return true;
     }
 
-    public void performConfig(AbstractBuild<?, ?> build, JSONObject formData) {
+    public void performConfig(AbstractBuild<?, ?> build, Map<String, String[]> formData) {
         List<ParameterValue> values = new ArrayList<ParameterValue>();
 
-        Iterator<?> it = formData.keys();
-
         logger.info("[MRP] The MATRIX RELOADED FORM has been submitted");
-        logger.info("[MRP]" + formData.toString(2));
+        //logger.info("[MRP]" + formData.toString(2));
 
         /* UUID */
         String uuid = build.getProject().getDisplayName() + "_" + build.getNumber() + "_"
@@ -143,39 +141,18 @@ public class MatrixReloadedAction implements Action {
         logger.fine("UUID given: " + uuid);
 
         /* Generate the parameters */
-        while (it.hasNext()) {
-            String key = (String)it.next();
-
-            /* Check the fields of the form */
-            if (key.startsWith(Definitions.__PREFIX)) {
-                String[] vs = key.split(Definitions.__DELIMITER, 2);
-                try {
-                    boolean checked = formData.getBoolean(key);
-
-                    boolean rebuild = false;
-
-                    /**/
-                    if (vs.length > 1 && checked) {
-                        rebuild = true;
-                    }
-
-                    /* Add parameter to the build state */
-                    if (vs.length > 1) {
-                        bs.addConfiguration(Combination.fromString(vs[1]), rebuild);
-                    }
-                } catch (JSONException e) {
-                    /* No-op, not the field we were looking for. */
-                }
-            }
-
+        Set<String> keys = formData.keySet();
+        for( String key : keys ) {
+        	
             /*
              * The special form field, providing information about the build we
              * decent from
              */
             if (key.equals(Definitions.__PREFIX + "NUMBER")) {
-                String value = formData.getString(key);
+                String value = formData.get(key)[0];
                 try {
                     bs.rebuildNumber = Integer.parseInt(value);
+                    logger.info("[MRP] Build number is " + bs.rebuildNumber );
                 } catch (NumberFormatException w) {
                     /*
                      * If we can't parse the integer, the number is zero. This
@@ -184,7 +161,25 @@ public class MatrixReloadedAction implements Action {
                      */
                     bs.rebuildNumber = 0;
                 }
+                
+                continue;
             }
+        	
+            /* Check the fields of the form */
+            if (key.startsWith(Definitions.__PREFIX)) {
+                String[] vs = key.split(Definitions.__DELIMITER, 2);
+                try {
+                    if (vs.length > 1) {
+                    	logger.info("[MRP] adding " + key );
+                    	bs.addConfiguration(Combination.fromString(vs[1]), true);
+                    }
+
+                } catch (JSONException e) {
+                    /* No-op, not the field we were looking for. */
+                }
+            }
+
+
         }
 
         /* Get the parameters of the build, if any and add them to the build */
@@ -238,7 +233,7 @@ public class MatrixReloadedAction implements Action {
         	}
         	System.out.println( );
         }
-        performConfig(build, formData);
+        performConfig(build, map);
 
         /*
          * Depending on where the form was submitted, the number of levels to
