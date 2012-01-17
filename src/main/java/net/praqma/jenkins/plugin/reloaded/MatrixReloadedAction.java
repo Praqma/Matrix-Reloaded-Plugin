@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -131,7 +133,7 @@ public class MatrixReloadedAction implements Action {
         Iterator<?> it = formData.keys();
 
         logger.info("[MRP] The MATRIX RELOADED FORM has been submitted");
-        logger.fine(formData.toString(2));
+        logger.info("[MRP]" + formData.toString(2));
 
         /* UUID */
         String uuid = build.getProject().getDisplayName() + "_" + build.getNumber() + "_"
@@ -226,7 +228,16 @@ public class MatrixReloadedAction implements Action {
         }
 
         JSONObject formData = req.getSubmittedForm();
-        System.out.println(formData.toString(2));
+        Map map = req.getParameterMap();
+        Set<String> keys = map.keySet();
+        System.out.println( "VALUES:" );
+        for( String key : keys ) {
+        	System.out.print( key + ": " );
+        	for( String val : req.getParameterValues(key) ) {
+        		System.out.print( val + "; " );
+        	}
+        	System.out.println( );
+        }
         performConfig(build, formData);
 
         /*

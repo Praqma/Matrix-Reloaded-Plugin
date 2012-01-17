@@ -24,6 +24,8 @@
 
 package net.praqma.jenkins.plugin.reloaded;
 
+import java.util.logging.Logger;
+
 import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState.BuildState;
 
 import hudson.Extension;
@@ -34,12 +36,16 @@ import hudson.matrix.listeners.MatrixBuildListener;
 @Extension
 public class MatrixReloadedBuildListener extends MatrixBuildListener{
 	
-	public boolean doBuildConfiguration(MatrixBuild b, MatrixConfiguration c)
-	{
+	private static Logger logger = Logger.getLogger(MatrixReloadedBuildListener.class.getName());
+	
+	public boolean doBuildConfiguration(MatrixBuild b, MatrixConfiguration c) {
         BuildState bs = Util.getBuildStateFromRun(b);
         if( bs == null ) {
+        	logger.severe("I didn't get");
         	return true;
         }
+        
+        logger.severe("I got " + bs);
         
         return bs.getConfiguration(c.getCombination());
 	}
