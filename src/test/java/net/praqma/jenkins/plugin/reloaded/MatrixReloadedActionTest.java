@@ -218,15 +218,15 @@ public class MatrixReloadedActionTest extends HudsonTestCase {
         MatrixBuild mb = mp.scheduleBuild2(0, new Cause.UserCause(), new ParametersAction(values)).get();
 
         /* Create form elements */
-        JSONObject form = new JSONObject();
+        Map<String, String[]> form = new HashMap<String, String[]>();
 
-        form.element("MRP::NUMBER", 1);
+        form.put("MRP::NUMBER", new String[] { "1" } );
 
-        form.element("MRP::dim1=1,dim2=a", false);
-        form.element("MRP::dim1=1,dim2=b", true);
-        form.element("MRP::dim1=2,dim2=a", true);
-        form.element("MRP::dim1=2,dim2=b", false);
-        form.element("MRP::", false);
+        //form.put("MRP::dim1=1,dim2=a", false);
+        form.put("MRP::dim1=1,dim2=b", new String[] { "0" });
+        form.put("MRP::dim1=2,dim2=a", new String[] { "0" });
+        //form.put("MRP::dim1=2,dim2=b", false);
+        form.put("MRP::", new String[] { "0" });
 
         MatrixReloadedAction mra = new MatrixReloadedAction();
         mra.performConfig(mb, form);
@@ -242,14 +242,14 @@ public class MatrixReloadedActionTest extends HudsonTestCase {
         MatrixBuild mb = mp.scheduleBuild2(0).get();
 
         /* Create form elements */
-        JSONObject form = new JSONObject();
+        Map<String, String[]> form = new HashMap<String, String[]>();
 
-        form.element("MRP::NUMBER", 1);
+        form.put("MRP::NUMBER", new String[] { "1" });
 
-        form.element("MRP::dim1=1,dim2=a", false);
-        form.element("MRP::dim1=1,dim2=b", true);
-        form.element("MRP::dim1=2,dim2=a", true);
-        form.element("MRP::dim1=2,dim2=b", false);
+        //form.element("MRP::dim1=1,dim2=a", false);
+        form.put("MRP::dim1=1,dim2=b", new String[] { "0" });
+        form.put("MRP::dim1=2,dim2=a", new String[] { "0" });
+        //form.element("MRP::dim1=2,dim2=b", false);
 
         MatrixReloadedAction mra = new MatrixReloadedAction();
         mra.performConfig(mb, form);
@@ -265,12 +265,12 @@ public class MatrixReloadedActionTest extends HudsonTestCase {
         MatrixBuild mb = mp.scheduleBuild2(0).get();
 
         /* Create form elements */
-        JSONObject form = new JSONObject();
+        Map<String, String[]> form = new HashMap<String, String[]>();
 
-        form.element("MRP::NUMBER", 1);
+        form.put("MRP::NUMBER", new String[] { "1" });
 
-        form.element("MRPFALSE1", false);
-        form.element("MRPFALSE2", true);
+        form.put("MRPFALSE1", new String[] { "0" });
+        form.put("MRPFALSE2", new String[] { "1" });
 
         MatrixReloadedAction mra = new MatrixReloadedAction();
         mra.performConfig(mb, form);
@@ -287,9 +287,9 @@ public class MatrixReloadedActionTest extends HudsonTestCase {
         MatrixBuild mb = mp.scheduleBuild2(0).get();
 
         /* Create form elements */
-        JSONObject form = new JSONObject();
+        Map<String, String[]> form = new HashMap<String, String[]>();
 
-        form.element("MRP::NUMBER", "fail");
+        form.put("MRP::NUMBER", new String[] { "fail" });
 
         MatrixReloadedAction mra = new MatrixReloadedAction();
         mra.performConfig(mb, form);
