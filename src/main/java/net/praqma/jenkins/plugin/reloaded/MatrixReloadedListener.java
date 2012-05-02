@@ -50,9 +50,6 @@ public class MatrixReloadedListener extends RunListener<Run> {
     @Override
     public void onStarted(Run run, TaskListener listener) {
         if (run instanceof MatrixBuild) {
-            /*
-             *
-             */
             BuildState bs = Util.getBuildStateFromRun(run);
             if (bs == null) {
                 //Jenkins 13514

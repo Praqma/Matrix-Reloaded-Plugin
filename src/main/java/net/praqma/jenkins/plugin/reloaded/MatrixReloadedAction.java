@@ -191,12 +191,14 @@ public class MatrixReloadedAction implements Action {
                      */
                 }
             }
+            //Jenkins 13514
             if (key.startsWith("forceDownstream")) {
                 bs.downstreamConfig = true;
             }
 
         }
         ParametersAction actions;
+        //Jenkins 13514
         if (build.getProject().getUpstreamProjects().size() > 0 && bs.downstreamConfig) {
             actions = build.getProject().getUpstreamProjects().get(0).getLastBuild().getAction(ParametersAction.class);
         } else {
