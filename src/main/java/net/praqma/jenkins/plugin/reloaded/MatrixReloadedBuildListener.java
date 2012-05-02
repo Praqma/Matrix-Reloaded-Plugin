@@ -21,7 +21,6 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
  */
-
 package net.praqma.jenkins.plugin.reloaded;
 
 import java.util.logging.Logger;
@@ -31,22 +30,40 @@ import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState.BuildState;
 import hudson.Extension;
 import hudson.matrix.MatrixConfiguration;
 import hudson.matrix.MatrixBuild;
+import hudson.matrix.MatrixProject;
 import hudson.matrix.listeners.MatrixBuildListener;
+import hudson.model.AbstractProject;
+import java.util.List;
 
 @Extension
-public class MatrixReloadedBuildListener extends MatrixBuildListener{
-	
-	private static Logger logger = Logger.getLogger(MatrixReloadedBuildListener.class.getName());
-	
-	public boolean doBuildConfiguration(MatrixBuild b, MatrixConfiguration c) {
+public class MatrixReloadedBuildListener extends MatrixBuildListener {
+
+    private static Logger logger = Logger.getLogger(MatrixReloadedBuildListener.class.getName());
+
+    public boolean doBuildConfiguration(MatrixBuild b, MatrixConfiguration c) {
         BuildState bs = Util.getBuildStateFromRun(b);
-        if( bs == null ) {
-        	logger.severe("I didn't get");
-        	return true;
+        if (bs == null) {
+            //Jenkins 13514
+            List<AbstractProject> ps = b.getProject().getUpstreamProjects();
+            for (AbstractProject p : ps) {
+                if (p instanceof MatrixProject) {
+                    BuildState state = Util.getBuildStateFromRun(p.getLastBuild());
+                    if (state != null && state.downstreamConfig) {
+                        b.getActions().addAll(p.getActions());
+                        bs = Util.getBuildStateFromRun(p.getLastBuild());
+                    }
+                }
+            }
+
+            if (bs == null) {
+
+                logger.severe("I didn't get");
+                return true;
+            }
         }
-        
+
         logger.severe("I got " + bs);
-        
+
         return bs.getConfiguration(c.getCombination());
-	}
+    }
 }

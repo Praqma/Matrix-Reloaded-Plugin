@@ -21,7 +21,6 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
  */
-
 package net.praqma.jenkins.plugin.reloaded;
 
 import hudson.matrix.Combination;
@@ -34,10 +33,11 @@ import java.util.Set;
 /**
  * This class is used to pass parameters from a form to a Run, given a uuid.
  * This is a singleton class.
- * 
+ *
  * @author wolfgang
  */
 public class MatrixReloadedState {
+
     private static final MatrixReloadedState instance = new MatrixReloadedState();
 
     private MatrixReloadedState() {
@@ -50,17 +50,17 @@ public class MatrixReloadedState {
     /**
      * This is the class holding the information about a Matrix Reloaded state
      * retrieved from the form submit.
-     * 
+     *
      * @author wolfgang
      */
     public class BuildState {
+
         /**
          * Determines whether a configuration should be reused or rebuild
          */
         Map<String, Boolean> configurations = new HashMap<String, Boolean>();
-
         public String uuid;
-
+        public boolean downstreamConfig;
         public int rebuildNumber = 0;
 
         BuildState(String uuid) {
@@ -69,7 +69,7 @@ public class MatrixReloadedState {
 
         /**
          * Add a configuration to the build state
-         * 
+         *
          * @param config A String representing the
          *            {@link hudson.matrix.MatrixConfiguration} given as its
          *            {@link hudson.matrix.Combination}
@@ -89,26 +89,28 @@ public class MatrixReloadedState {
 
         /**
          * Remove a configuration from the build state
-         * 
+         *
          * @param combination A {@link hudson.matrix.MatrixConfiguration} given
-         *            as its {@link hudson.matrix.Combination}
+         * as its {@link hudson.matrix.Combination}
          */
         public void removeConfiguration(Combination combination) {
             configurations.remove(combination.toString());
 
-            /* Check if empty */
+            /*
+             * Check if empty
+             */
             if (configurations.isEmpty()) {
                 remove();
             }
         }
 
         /**
-         * Returns whether or not to rebuild the {@link hudson.model.Run}
-         * If the combination is not in the database, the method returns true,
-         * meaning the run will build.
-         * 
+         * Returns whether or not to rebuild the {@link hudson.model.Run} If the
+         * combination is not in the database, the method returns true, meaning
+         * the run will build.
+         *
          * @param combination A {@link hudson.matrix.MatrixConfiguration} given
-         *            as its {@link hudson.matrix.Combination}
+         * as its {@link hudson.matrix.Combination}
          * @return A boolean determining whether or nor to rebuild the
          *         {@link hudson.model.Run}
          */
@@ -138,7 +140,6 @@ public class MatrixReloadedState {
             return configurations.size();
         }
     }
-
     /**
      * The data of the class
      */
@@ -146,7 +147,7 @@ public class MatrixReloadedState {
 
     /**
      * Return a specific BuildState given a uuid
-     * 
+     *
      * @param uuid The uuid
      * @return The BuildState
      */

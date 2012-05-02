@@ -21,7 +21,6 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
  */
-
 package net.praqma.jenkins.plugin.reloaded;
 
 import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState.BuildState;
@@ -29,20 +28,21 @@ import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState.BuildState;
 import hudson.Extension;
 import hudson.matrix.MatrixRun;
 import hudson.matrix.MatrixBuild;
-import hudson.model.AbstractBuild;
-import hudson.model.TaskListener;
-import hudson.model.Run;
+import hudson.matrix.MatrixProject;
+import hudson.model.*;
 import hudson.model.listeners.RunListener;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This registers the {@link Action}s to the side panel of the matrix project
  * and sets the Run.RedoRun object if it's actually a redo.
- * 
+ *
  * @author wolfgang
  */
 @Extension
 public class MatrixReloadedListener extends RunListener<Run> {
-	
+
     public MatrixReloadedListener() {
         super(Run.class);
     }
@@ -50,16 +50,37 @@ public class MatrixReloadedListener extends RunListener<Run> {
     @Override
     public void onStarted(Run run, TaskListener listener) {
         if (run instanceof MatrixBuild) {
-            /**/
+            /*
+             *
+             */
             BuildState bs = Util.getBuildStateFromRun(run);
-            if( bs == null ) {
-            	return;
+            if (bs == null) {
+                //Jenkins 13514
+                AbstractProject proj = (AbstractProject) run.getParent();
+                List<AbstractProject> ps = proj.getUpstreamProjects();
+                for (AbstractProject p : ps) {
+                    if (p instanceof MatrixProject) {
+                        BuildState state = Util.getBuildStateFromRun(p.getLastBuild());
+                        List<Action> actions = p.getActions();
+                        
+                        if (state != null && state.downstreamConfig) {
+                            run.getActions().addAll(p.getActions());
+                            bs = Util.getBuildStateFromRun(p.getLastBuild());
+                        }
+                    }
+                }
+
+                if (bs == null) {
+                    return;
+                }
+
             }
-            
-            MatrixBuild mb = (MatrixBuild)run;
+
+
+            MatrixBuild mb = (MatrixBuild) run;
             MatrixBuild base = mb.getProject().getBuildByNumber(bs.rebuildNumber);
-            
-            ((MatrixBuild)run).setBaseBuild(base);
+
+            ((MatrixBuild) run).setBaseBuild(base);
         }
     }
 
@@ -68,21 +89,24 @@ public class MatrixReloadedListener extends RunListener<Run> {
      */
     @Override
     public void onCompleted(Run run, TaskListener listener) {
-        /* Test for MatrixBuild and add to context */
+        /*
+         * Test for MatrixBuild and add to context
+         */
         if (run instanceof MatrixBuild) {
-            AbstractBuild<?, ?> build = (AbstractBuild<?, ?>)run;
+            AbstractBuild<?, ?> build = (AbstractBuild<?, ?>) run;
 
             MatrixReloadedAction action = new MatrixReloadedAction();
             build.getActions().add(action);
         }
 
-        /* Test for MatrixRun and add to context */
+        /*
+         * Test for MatrixRun and add to context
+         */
         if (run instanceof MatrixRun) {
-            AbstractBuild<?, ?> build = (AbstractBuild<?, ?>)run;
+            AbstractBuild<?, ?> build = (AbstractBuild<?, ?>) run;
 
-            MatrixReloadedAction action = new MatrixReloadedAction(((MatrixRun)run).getParent().getCombination().toString());
+            MatrixReloadedAction action = new MatrixReloadedAction(((MatrixRun) run).getParent().getCombination().toString());
             build.getActions().add(action);
         }
     }
-
 }

@@ -21,7 +21,6 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
  */
-
 package net.praqma.jenkins.plugin.reloaded;
 
 import java.io.IOException;
@@ -59,17 +58,18 @@ import hudson.model.StringParameterValue;
 /**
  * The Matrix Reloaded Action class. This enables the plugin to add the link
  * action to the side panel.
- * 
+ *
  * @author wolfgang
  */
 public class MatrixReloadedAction implements Action {
+
     private AbstractBuild<?, ?> build;
-
     private String checked = null;
-
+    private boolean downstreamConfig = false;
     private static final Logger logger = Logger.getLogger(MatrixReloadedAction.class.getName());
 
     enum BuildType {
+
         MATRIXBUILD, MATRIXRUN, UNKNOWN
     }
 
@@ -92,6 +92,10 @@ public class MatrixReloadedAction implements Action {
         return Definitions.__URL_NAME;
     }
 
+    public boolean getDownstreamConfig() {
+        return downstreamConfig;
+    }
+
     public AbstractBuild<?, ?> getBuild() {
         return build;
     }
@@ -104,27 +108,28 @@ public class MatrixReloadedAction implements Action {
         return this.checked;
     }
 
-    public boolean combinationExists( AbstractBuild<?, ?> build, Combination c )
-    {
-    	MatrixProject mp = null;
-    	
-    	if(build instanceof MatrixBuild) {
-    		mp = (MatrixProject) build.getProject();
-    	} else if(build instanceof MatrixRun) {
-    		mp = ((MatrixRun)build).getParentBuild().getProject();
-    	} else {
-    		Log.warn("Unable to determine matrix project");
-    		return false;
-    	}
-    	
-    	MatrixConfiguration mc = mp.getItem(c);
-    	
-    	/* Verify matrix configuration */
-    	if( mc == null || !mc.isActiveConfiguration() ) {
-    		return false;
-    	}    	
-    	    	
-    	return true;
+    public boolean combinationExists(AbstractBuild<?, ?> build, Combination c) {
+        MatrixProject mp = null;
+
+        if (build instanceof MatrixBuild) {
+            mp = (MatrixProject) build.getProject();
+        } else if (build instanceof MatrixRun) {
+            mp = ((MatrixRun) build).getParentBuild().getProject();
+        } else {
+            Log.warn("Unable to determine matrix project");
+            return false;
+        }
+
+        MatrixConfiguration mc = mp.getItem(c);
+
+        /*
+         * Verify matrix configuration
+         */
+        if (mc == null || !mc.isActiveConfiguration()) {
+            return false;
+        }
+
+        return true;
     }
 
     public void performConfig(AbstractBuild<?, ?> build, Map<String, String[]> formData) {
@@ -133,17 +138,21 @@ public class MatrixReloadedAction implements Action {
         logger.info("[MRP] The MATRIX RELOADED FORM has been submitted");
         //logger.info("[MRP]" + formData.toString(2));
 
-        /* UUID */
+        /*
+         * UUID
+         */
         String uuid = build.getProject().getDisplayName() + "_" + build.getNumber() + "_"
                 + System.currentTimeMillis();
         BuildState bs = MatrixReloadedState.getInstance().getBuildState(uuid);
 
         logger.fine("UUID given: " + uuid);
 
-        /* Generate the parameters */
+        /*
+         * Generate the parameters
+         */
         Set<String> keys = formData.keySet();
-        for( String key : keys ) {
-        	
+        for (String key : keys) {
+
             /*
              * The special form field, providing information about the build we
              * decent from
@@ -152,7 +161,7 @@ public class MatrixReloadedAction implements Action {
                 String value = formData.get(key)[0];
                 try {
                     bs.rebuildNumber = Integer.parseInt(value);
-                    logger.info("[MRP] Build number is " + bs.rebuildNumber );
+                    logger.info("[MRP] Build number is " + bs.rebuildNumber);
                 } catch (NumberFormatException w) {
                     /*
                      * If we can't parse the integer, the number is zero. This
@@ -161,29 +170,41 @@ public class MatrixReloadedAction implements Action {
                      */
                     bs.rebuildNumber = 0;
                 }
-                
+
                 continue;
             }
-        	
-            /* Check the fields of the form */
+
+            /*
+             * Check the fields of the form
+             */
             if (key.startsWith(Definitions.__PREFIX)) {
                 String[] vs = key.split(Definitions.__DELIMITER, 2);
                 try {
                     if (vs.length > 1) {
-                    	logger.info("[MRP] adding " + key );
-                    	bs.addConfiguration(Combination.fromString(vs[1]), true);
+                        logger.info("[MRP] adding " + key);
+                        bs.addConfiguration(Combination.fromString(vs[1]), true);
                     }
 
                 } catch (JSONException e) {
-                    /* No-op, not the field we were looking for. */
+                    /*
+                     * No-op, not the field we were looking for.
+                     */
                 }
             }
-
+            if (key.startsWith("forceDownstream")) {
+                bs.downstreamConfig = true;
+            }
 
         }
-
-        /* Get the parameters of the build, if any and add them to the build */
-        ParametersAction actions = build.getAction(ParametersAction.class);
+        ParametersAction actions;
+        if (build.getProject().getUpstreamProjects().size() > 0 && bs.downstreamConfig) {
+            actions = build.getProject().getUpstreamProjects().get(0).getLastBuild().getAction(ParametersAction.class);
+        } else {
+            /*
+             * Get the parameters of the build, if any and add them to the build
+             */
+            actions = build.getAction(ParametersAction.class);
+        }
         if (actions != null) {
             List<ParameterValue> list = actions.getParameters();
             for (ParameterValue pv : list) {
@@ -194,14 +215,16 @@ public class MatrixReloadedAction implements Action {
             }
         }
 
-        /* Add the UUID to the new build. */
+        /*
+         * Add the UUID to the new build.
+         */
         values.add(new StringParameterValue(Definitions.__UUID, uuid));
 
-        /* Schedule the MatrixBuild */
-        Hudson.getInstance()
-                .getQueue()
-                .schedule(build.getProject(), 0, new ParametersAction(values),
-                        new CauseAction(new Cause.UserCause()));
+        /*
+         * Schedule the MatrixBuild
+         */
+        Hudson.getInstance().getQueue().schedule(build.getProject(), 0, new ParametersAction(values),
+                new CauseAction(new Cause.UserCause()));
 
     }
 
@@ -217,7 +240,7 @@ public class MatrixReloadedAction implements Action {
             build = mbuild;
         } else if (req.findAncestor(MatrixRun.class) != null) {
             type = BuildType.MATRIXRUN;
-            build = ((MatrixRun)mbuild).getParentBuild();
+            build = ((MatrixRun) mbuild).getParentBuild();
         } else {
             type = BuildType.UNKNOWN;
         }
@@ -225,13 +248,13 @@ public class MatrixReloadedAction implements Action {
         JSONObject formData = req.getSubmittedForm();
         Map map = req.getParameterMap();
         Set<String> keys = map.keySet();
-        System.out.println( "VALUES:" );
-        for( String key : keys ) {
-        	System.out.print( key + ": " );
-        	for( String val : req.getParameterValues(key) ) {
-        		System.out.print( val + "; " );
-        	}
-        	System.out.println( );
+        System.out.println("VALUES:");
+        for (String key : keys) {
+            System.out.print(key + ": ");
+            for (String val : req.getParameterValues(key)) {
+                System.out.print(val + "; ");
+            }
+            System.out.println();
         }
         performConfig(build, map);
 
@@ -245,5 +268,4 @@ public class MatrixReloadedAction implements Action {
             rsp.sendRedirect("../../");
         }
     }
-
 }
