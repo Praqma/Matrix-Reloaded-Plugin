@@ -191,15 +191,15 @@ public class MatrixReloadedAction implements Action {
                      */
                 }
             }
-            //Jenkins 13514
+            //if the key is set we set the value on the build status for later on
             if (key.startsWith("forceDownstream")) {
                 bs.downstreamConfig = true;
             }
 
         }
         ParametersAction actions;
-        //Jenkins 13514
         if (build.getProject().getUpstreamProjects().size() > 0 && bs.downstreamConfig) {
+            //if we are running as the second or more job in a downstream build sekvens this is the way.
             actions = build.getProject().getUpstreamProjects().get(0).getLastBuild().getAction(ParametersAction.class);
         } else {
             /*

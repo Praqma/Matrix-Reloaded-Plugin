@@ -43,7 +43,8 @@ public class MatrixReloadedBuildListener extends MatrixBuildListener {
     public boolean doBuildConfiguration(MatrixBuild b, MatrixConfiguration c) {
         BuildState bs = Util.getBuildStateFromRun(b);
         if (bs == null) {
-            //Jenkins 13514
+            //if the build has no BuildState and we should use the 
+            //config from upstream build 
             List<AbstractProject> ps = b.getProject().getUpstreamProjects();
             for (AbstractProject p : ps) {
                 if (p instanceof MatrixProject) {

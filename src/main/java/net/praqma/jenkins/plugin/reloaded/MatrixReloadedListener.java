@@ -52,7 +52,8 @@ public class MatrixReloadedListener extends RunListener<Run> {
         if (run instanceof MatrixBuild) {
             BuildState bs = Util.getBuildStateFromRun(run);
             if (bs == null) {
-                //Jenkins 13514
+                //if this build has no state and we should use the config from upstream
+                //job.
                 AbstractProject proj = (AbstractProject) run.getParent();
                 List<AbstractProject> ps = proj.getUpstreamProjects();
                 for (AbstractProject p : ps) {
