@@ -161,7 +161,7 @@ function click2Change( status )
 					<a href="#" onclick="click2Change(-1);">${%None}</a> 
 					
 					<br/>
-                                        <label style="font-weight:bold">Used this configuration on downstream builds: </label>
+                                        <label>Matrix Reload downstream builds: </label>
                     <f:checkbox name="forceDownstream"  checked="false" value="${it.getDownstreamConfig()}" />
                     <br/>
                                         <br /><f:submit value="${%Rebuild Matrix}" />
