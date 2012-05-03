@@ -16,6 +16,7 @@
     <name>Matrix Reloaded Plugin</name>
     <description>The Matrix Reloaded plugin. Used for rebuilding a subset of a matrix' configurations, reusing the rest.</description>
     <packaging>hpi</packaging>
+    <url>https://wiki.jenkins-ci.org/display/JENKINS/Matrix+Reloaded+Plugin</url>
 	
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
