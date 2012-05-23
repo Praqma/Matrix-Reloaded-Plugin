@@ -52,7 +52,7 @@ public abstract class Util {
         return null;
     }
     
-    public static void get( AbstractBuild<?, ?> build ) {
+    public static RebuildAction get( AbstractBuild<?, ?> build ) {
     	UpstreamCause cause = (UpstreamCause) build.getCause( UpstreamCause.class );
     	AbstractProject<?, ?> project = build.getProject();
     	
@@ -64,7 +64,10 @@ public abstract class Util {
     		if( cause.getUpstreamProject().equals( p.getDisplayName() ) ) {
     			AbstractBuild<?, ?> origin = p.getBuildByNumber( cause.getUpstreamBuild() );
     			System.out.println( "Build: " + origin );
+    			return origin.getAction( RebuildAction.class );
     		}
     	}
+    	
+    	return null;
     }
 }
