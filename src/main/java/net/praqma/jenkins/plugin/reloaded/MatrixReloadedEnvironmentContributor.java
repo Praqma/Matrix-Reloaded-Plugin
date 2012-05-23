@@ -28,6 +28,8 @@ import java.io.IOException;
 
 import hudson.EnvVars;
 import hudson.Extension;
+import hudson.matrix.MatrixRun;
+import hudson.matrix.MatrixBuild;
 import hudson.model.EnvironmentContributor;
 import hudson.model.TaskListener;
 import hudson.model.Run;
@@ -36,14 +38,22 @@ import hudson.model.Run;
 public class MatrixReloadedEnvironmentContributor extends EnvironmentContributor {
     public void buildEnvironmentFor(Run r, EnvVars envs, TaskListener listener) throws IOException,
             InterruptedException {
-    	
-    	RebuildAction action = r.getAction( RebuildAction.class );
-        if( action == null ) {
-        	return;
-        }
 
-        if (action.getBaseBuildNumber() > 0) {
-            envs.put(Definitions.__REBUILD_VAR_NAME,action.getBaseBuildNumber() + "");
-        }
+    	if( r instanceof MatrixRun ) {
+    		System.out.println( "MATRIX RUN!" );
+    		MatrixBuild mb = ((MatrixRun)r).getParentBuild();
+	    	System.out.println( mb.getActions() );
+	    	Util.addActionToRun( mb );
+	    	RebuildAction action = mb.getAction( RebuildAction.class );
+	    	System.out.println( "Trying to put for " + action );
+	        if( action == null ) {
+	        	return;
+	        }
+	
+	        if (action.getBaseBuildNumber() > 0) {
+	        	System.out.println( "PUTTING " + action.getBaseBuildNumber() );
+	            envs.put(Definitions.__REBUILD_VAR_NAME,action.getBaseBuildNumber() + "");
+	        }
+    	}
     }
 }

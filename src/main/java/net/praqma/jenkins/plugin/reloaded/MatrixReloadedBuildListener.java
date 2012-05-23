@@ -28,15 +28,10 @@ import java.util.logging.Logger;
 import hudson.Extension;
 import hudson.matrix.MatrixConfiguration;
 import hudson.matrix.MatrixBuild;
-import hudson.matrix.MatrixProject;
 import hudson.matrix.listeners.MatrixBuildListener;
-import hudson.model.AbstractProject;
-import java.util.List;
 
 @Extension
 public class MatrixReloadedBuildListener extends MatrixBuildListener {
-
-    private static Logger logger = Logger.getLogger(MatrixReloadedBuildListener.class.getName());
 
     public boolean doBuildConfiguration(MatrixBuild b, MatrixConfiguration c) {
     	RebuildAction action = b.getAction( RebuildAction.class );

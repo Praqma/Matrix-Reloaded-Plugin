@@ -24,18 +24,11 @@
 package net.praqma.jenkins.plugin.reloaded;
 
 import hudson.Extension;
-import hudson.matrix.MatrixConfiguration;
 import hudson.matrix.MatrixRun;
 import hudson.matrix.MatrixBuild;
-import hudson.matrix.MatrixProject;
 import hudson.model.*;
 import hudson.model.AbstractBuild;
-import hudson.model.Cause.UpstreamCause;
 import hudson.model.listeners.RunListener;
-import java.util.List;
-import java.util.Map;
-
-import jenkins.model.Jenkins;
 
 /**
  * This registers the {@link Action}s to the side panel of the matrix project
@@ -56,44 +49,23 @@ public class MatrixReloadedListener extends RunListener<Run> {
     @Override
     public void onStarted(Run run, TaskListener listener) {
 
-    	
         if (run instanceof MatrixBuild) {
         	RebuildAction action = run.getAction( RebuildAction.class );
-            
+
+        	/* If the action is null, this must either be a propagated downstream build or not applicable */
             if (action == null) {
-                //if this build has no state and we should use the config from upstream
-                //job.
-            	Util.get( (AbstractBuild<?, ?>) run );
-                AbstractProject proj = (AbstractProject) ((MatrixBuild)run).getProject();
-                System.out.println( "PROJ: " + proj );
-                UpstreamCause cause = (UpstreamCause) run.getCause( UpstreamCause.class );
-                
-                System.out.println( "BUILD: " + proj.getBuildByNumber( cause.getUpstreamBuild() ) );
-                System.out.println( "BUILD: " + cause.getUpstreamBuild() );
-                System.out.println( "BUILD: " + ( (AbstractBuild<?, ?>) run ).getUpstreamRelationship( proj ) );
-                System.out.println( "BUILD: " + ((AbstractBuild)run).getUpstreamBuilds() );
-                List<AbstractProject> ps = proj.getUpstreamProjects();
-                for (AbstractProject p : ps) {
-                    if (p instanceof MatrixProject) {
-                    	Run origin = p.getLastBuild();
-                    	RebuildAction ra = origin.getAction( RebuildAction.class );
-
-                        if (ra != null && ra.doRebuildDownstream()) {
-                            run.addAction( ra.clone( 1 ) );
-                        }
-                    }
-                }
-
-                if (action == null) {
+                /* Get the upstream action, if it's not null and the rebuild downstream is set, clone it to the current build and continue  */
+            	action = Util.getUpstreamAction( (AbstractBuild<?, ?>) run );
+                if (action != null && action.doRebuildDownstream()) {
+                	run.addAction( action.clone() );
+                } else {
                     return;
                 }
-
             }
 
-
+            /* Set the base build for the build */
             MatrixBuild mb = (MatrixBuild) run;
             MatrixBuild base = mb.getProject().getBuildByNumber(action.getBaseBuildNumber());
-
             ((MatrixBuild) run).setBaseBuild(base);
         }
     }

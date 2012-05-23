@@ -1,7 +1,7 @@
 /*
  *  The MIT License
  *
- *  Copyright 2011 Praqma A/S.
+ *  Copyright 2011, 2012 Praqma A/S.
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -24,9 +24,6 @@
 package net.praqma.jenkins.plugin.reloaded;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -61,7 +58,6 @@ public class MatrixReloadedAction implements Action {
 
     private AbstractBuild<?, ?> build;
     private String checked = null;
-    private boolean downstreamConfig = false;
     private static final Logger logger = Logger.getLogger(MatrixReloadedAction.class.getName());
 
     enum BuildType {
@@ -86,10 +82,6 @@ public class MatrixReloadedAction implements Action {
 
     public String getUrlName() {
         return Definitions.__URL_NAME;
-    }
-
-    public boolean getDownstreamConfig() {
-        return downstreamConfig;
     }
 
     public AbstractBuild<?, ?> getBuild() {
@@ -230,6 +222,8 @@ public class MatrixReloadedAction implements Action {
         }
         performConfig(build, map);
 
+        System.out.println( "Queuing new mr" );
+        
         /*
          * Depending on where the form was submitted, the number of levels to
          * direct

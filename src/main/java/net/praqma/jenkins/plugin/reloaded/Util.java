@@ -29,6 +29,7 @@ import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Cause.UpstreamCause;
 import hudson.model.Project;
+import hudson.model.Run;
 
 import java.util.List;
 
@@ -52,20 +53,40 @@ public abstract class Util {
         return null;
     }
     
-    public static RebuildAction get( AbstractBuild<?, ?> build ) {
+    public static boolean addActionToRun( Run run ) {
+    	RebuildAction action = run.getAction( RebuildAction.class );
+
+    	/* If the action is null, this must either be a propagated downstream build or not applicable */
+        if (action == null) {
+            /* Get the upstream action, if it's not null and the rebuild downstream is set, clone it to the current build and continue  */
+        	action = Util.getUpstreamAction( (AbstractBuild<?, ?>) run );
+            if (action != null && action.doRebuildDownstream()) {
+            	run.addAction( action.clone() );
+            	return true;
+            } else {
+                return false;
+            }
+        } else {
+        	return true;
+        }
+    }
+    
+    public static RebuildAction getUpstreamAction( AbstractBuild<?, ?> build ) {
     	UpstreamCause cause = (UpstreamCause) build.getCause( UpstreamCause.class );
-    	AbstractProject<?, ?> project = build.getProject();
-    	
-    	System.out.println( "Upstream project: " + cause.getUpstreamProject() );
-    	
-    	List<AbstractProject> projects = project.getUpstreamProjects();
-    	
-    	for( AbstractProject<?, ?> p : projects ) {
-    		if( cause.getUpstreamProject().equals( p.getDisplayName() ) ) {
-    			AbstractBuild<?, ?> origin = p.getBuildByNumber( cause.getUpstreamBuild() );
-    			System.out.println( "Build: " + origin );
-    			return origin.getAction( RebuildAction.class );
-    		}
+    	if( cause != null ) {
+	    	AbstractProject<?, ?> project = build.getProject();
+	    	
+	    	System.out.println( "Upstream project: " + cause.getUpstreamProject() );
+	    	
+	    	List<AbstractProject> projects = project.getUpstreamProjects();
+	    	
+	    	for( AbstractProject<?, ?> p : projects ) {
+	    		if( cause.getUpstreamProject().equals( p.getDisplayName() ) ) {
+	    			AbstractBuild<?, ?> origin = p.getBuildByNumber( cause.getUpstreamBuild() );
+	    			System.out.println( "Build: " + origin );
+	    			return origin.getAction( RebuildAction.class );
+	    		}
+	    	}
     	}
     	
     	return null;

@@ -45,6 +45,17 @@ public class RebuildAction implements Action {
 	public RebuildAction clone( int baseBuildNumber ) {
 		RebuildAction ra = new RebuildAction();
 		ra.baseBuildNumber = baseBuildNumber;
+		ra.configurations = this.configurations;
+		ra.rebuildDownstream = this.rebuildDownstream;
+		
+		return ra;
+	}
+	
+	public RebuildAction clone( ) {
+		RebuildAction ra = new RebuildAction();
+		ra.baseBuildNumber = this.baseBuildNumber;
+		ra.configurations = this.configurations;
+		ra.rebuildDownstream = this.rebuildDownstream;
 		
 		return ra;
 	}

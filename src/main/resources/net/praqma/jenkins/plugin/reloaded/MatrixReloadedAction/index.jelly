@@ -162,7 +162,7 @@ function click2Change( status )
 					
 					<br/>
                                         <label>Matrix Reload downstream builds: </label>
-                    <f:checkbox name="forceDownstream"  checked="false" value="${it.getDownstreamConfig()}" />
+                    <f:checkbox name="forceDownstream"  checked="false" />
                     <br/>
                                         <br /><f:submit value="${%Rebuild Matrix}" />
                                         
