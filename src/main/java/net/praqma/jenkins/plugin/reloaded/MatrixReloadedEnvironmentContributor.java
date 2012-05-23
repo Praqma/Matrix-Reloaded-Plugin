@@ -26,8 +26,6 @@ package net.praqma.jenkins.plugin.reloaded;
 
 import java.io.IOException;
 
-import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState.BuildState;
-
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.model.EnvironmentContributor;
@@ -39,13 +37,13 @@ public class MatrixReloadedEnvironmentContributor extends EnvironmentContributor
     public void buildEnvironmentFor(Run r, EnvVars envs, TaskListener listener) throws IOException,
             InterruptedException {
     	
-        BuildState bs = Util.getBuildStateFromRun(r);
-        if( bs == null ) {
+    	RebuildAction action = r.getAction( RebuildAction.class );
+        if( action == null ) {
         	return;
         }
 
-        if (bs.rebuildNumber > 0) {
-            envs.put(Definitions.__REBUILD_VAR_NAME,bs.rebuildNumber + "");
+        if (action.getBaseBuildNumber() > 0) {
+            envs.put(Definitions.__REBUILD_VAR_NAME,action.getBaseBuildNumber() + "");
         }
     }
 }

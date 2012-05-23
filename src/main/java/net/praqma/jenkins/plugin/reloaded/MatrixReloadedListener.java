@@ -23,16 +23,19 @@
  */
 package net.praqma.jenkins.plugin.reloaded;
 
-import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState.BuildState;
-
 import hudson.Extension;
+import hudson.matrix.MatrixConfiguration;
 import hudson.matrix.MatrixRun;
 import hudson.matrix.MatrixBuild;
 import hudson.matrix.MatrixProject;
 import hudson.model.*;
+import hudson.model.AbstractBuild;
+import hudson.model.Cause.UpstreamCause;
 import hudson.model.listeners.RunListener;
 import java.util.List;
 import java.util.Map;
+
+import jenkins.model.Jenkins;
 
 /**
  * This registers the {@link Action}s to the side panel of the matrix project
@@ -47,28 +50,41 @@ public class MatrixReloadedListener extends RunListener<Run> {
         super(Run.class);
     }
 
+    /**
+     * 
+     */
     @Override
     public void onStarted(Run run, TaskListener listener) {
+
+    	
         if (run instanceof MatrixBuild) {
-            BuildState bs = Util.getBuildStateFromRun(run);
-            if (bs == null) {
+        	RebuildAction action = run.getAction( RebuildAction.class );
+            
+            if (action == null) {
                 //if this build has no state and we should use the config from upstream
                 //job.
-                AbstractProject proj = (AbstractProject) run.getParent();
+            	Util.get( (AbstractBuild<?, ?>) run );
+                AbstractProject proj = (AbstractProject) ((MatrixBuild)run).getProject();
+                System.out.println( "PROJ: " + proj );
+                UpstreamCause cause = (UpstreamCause) run.getCause( UpstreamCause.class );
+                
+                System.out.println( "BUILD: " + proj.getBuildByNumber( cause.getUpstreamBuild() ) );
+                System.out.println( "BUILD: " + cause.getUpstreamBuild() );
+                System.out.println( "BUILD: " + ( (AbstractBuild<?, ?>) run ).getUpstreamRelationship( proj ) );
+                System.out.println( "BUILD: " + ((AbstractBuild)run).getUpstreamBuilds() );
                 List<AbstractProject> ps = proj.getUpstreamProjects();
                 for (AbstractProject p : ps) {
                     if (p instanceof MatrixProject) {
-                        BuildState state = Util.getBuildStateFromRun(p.getLastBuild());
-                        List<Action> actions = p.getActions();
-                        
-                        if (state != null && state.downstreamConfig) {
-                            run.getActions().addAll(p.getActions());
-                            bs = Util.getBuildStateFromRun(p.getLastBuild());
+                    	Run origin = p.getLastBuild();
+                    	RebuildAction ra = origin.getAction( RebuildAction.class );
+
+                        if (ra != null && ra.doRebuildDownstream()) {
+                            run.addAction( ra.clone( 1 ) );
                         }
                     }
                 }
 
-                if (bs == null) {
+                if (action == null) {
                     return;
                 }
 
@@ -76,20 +92,21 @@ public class MatrixReloadedListener extends RunListener<Run> {
 
 
             MatrixBuild mb = (MatrixBuild) run;
-            MatrixBuild base = mb.getProject().getBuildByNumber(bs.rebuildNumber);
+            MatrixBuild base = mb.getProject().getBuildByNumber(action.getBaseBuildNumber());
 
             ((MatrixBuild) run).setBaseBuild(base);
         }
     }
 
     /**
-     * Add the Matrix Reloaded link to the build context
+     * Add the Matrix Reloaded link to the build context, this will enable matrix reload a previous build from the menu.<br>
+     * This is done for all matrix builds 
      */
     @Override
     public void onCompleted(Run run, TaskListener listener) {
-        /*
-         * Test for MatrixBuild and add to context
-         */
+		/*
+		 * Test for MatrixBuild and add to context
+		 */
         if (run instanceof MatrixBuild) {
             AbstractBuild<?, ?> build = (AbstractBuild<?, ?>) run;
 

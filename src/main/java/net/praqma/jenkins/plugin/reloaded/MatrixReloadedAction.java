@@ -33,7 +33,6 @@ import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 
-import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState.BuildState;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
@@ -51,9 +50,6 @@ import hudson.model.Action;
 import hudson.model.Cause;
 import hudson.model.CauseAction;
 import hudson.model.Hudson;
-import hudson.model.ParameterValue;
-import hudson.model.ParametersAction;
-import hudson.model.StringParameterValue;
 
 /**
  * The Matrix Reloaded Action class. This enables the plugin to add the link
@@ -133,20 +129,11 @@ public class MatrixReloadedAction implements Action {
     }
 
     public void performConfig(AbstractBuild<?, ?> build, Map<String, String[]> formData) {
-        List<ParameterValue> values = new ArrayList<ParameterValue>();
-
         logger.info("[MRP] The MATRIX RELOADED FORM has been submitted");
-        //logger.info("[MRP]" + formData.toString(2));
 
-        /*
-         * UUID
-         */
-        String uuid = build.getProject().getDisplayName() + "_" + build.getNumber() + "_"
-                + System.currentTimeMillis();
-        BuildState bs = MatrixReloadedState.getInstance().getBuildState(uuid);
-
-        logger.fine("UUID given: " + uuid);
-
+        
+        RebuildAction raction = new RebuildAction();
+        
         /*
          * Generate the parameters
          */
@@ -160,15 +147,14 @@ public class MatrixReloadedAction implements Action {
             if (key.equals(Definitions.__PREFIX + "NUMBER")) {
                 String value = formData.get(key)[0];
                 try {
-                    bs.rebuildNumber = Integer.parseInt(value);
-                    logger.info("[MRP] Build number is " + bs.rebuildNumber);
+                    raction.setBaseBuildNumber( Integer.parseInt(value) );
+                    logger.info("[MRP] Build number is " + raction.getBaseBuildNumber());
                 } catch (NumberFormatException w) {
                     /*
                      * If we can't parse the integer, the number is zero. This
                      * will either make the new run fail or rebuild it id
                      * rebuildIfMissing is set(not set actually)
                      */
-                    bs.rebuildNumber = 0;
                 }
 
                 continue;
@@ -182,7 +168,7 @@ public class MatrixReloadedAction implements Action {
                 try {
                     if (vs.length > 1) {
                         logger.info("[MRP] adding " + key);
-                        bs.addConfiguration(Combination.fromString(vs[1]), true);
+                        raction.addConfiguration( Combination.fromString(vs[1]), true );
                     }
 
                 } catch (JSONException e) {
@@ -193,43 +179,27 @@ public class MatrixReloadedAction implements Action {
             }
             //if the key is set we set the value on the build status for later on
             if (key.startsWith("forceDownstream")) {
-                bs.downstreamConfig = true;
+                raction.setRebuildDownstream( true );
             }
 
         }
-        ParametersAction actions;
-        if (build.getProject().getUpstreamProjects().size() > 0 && bs.downstreamConfig) {
-            //if we are running as the second or more job in a downstream build sekvens this is the way.
-            actions = build.getProject().getUpstreamProjects().get(0).getLastBuild().getAction(ParametersAction.class);
-        } else {
-            /*
-             * Get the parameters of the build, if any and add them to the build
-             */
-            actions = build.getAction(ParametersAction.class);
-        }
-        if (actions != null) {
-            List<ParameterValue> list = actions.getParameters();
-            for (ParameterValue pv : list) {
-                // if( !pv.getName().startsWith( Definitions.prefix ) )
-                if (!pv.getName().equals(Definitions.__UUID)) {
-                    values.add(pv);
-                }
-            }
-        }
-
-        /*
-         * Add the UUID to the new build.
-         */
-        values.add(new StringParameterValue(Definitions.__UUID, uuid));
+        
 
         /*
          * Schedule the MatrixBuild
-         */
-        Hudson.getInstance().getQueue().schedule(build.getProject(), 0, new ParametersAction(values),
-                new CauseAction(new Cause.UserCause()));
+         */        
+        Hudson.getInstance().getQueue().schedule(build.getProject(), 0, raction, new CauseAction(new Cause.UserCause()));
 
     }
 
+    /**
+     * This submits the action added by the run listener, onCompleted and will thus matrix reload a matrix build.
+     * @param req
+     * @param rsp
+     * @throws ServletException
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public void doConfigSubmit(StaplerRequest req, StaplerResponse rsp) throws ServletException,
             IOException, InterruptedException {
         AbstractBuild<?, ?> mbuild = req.findAncestorObject(AbstractBuild.class);

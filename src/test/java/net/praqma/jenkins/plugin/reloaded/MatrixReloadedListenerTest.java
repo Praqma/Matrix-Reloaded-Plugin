@@ -40,9 +40,6 @@ import hudson.matrix.MatrixProject;
 import hudson.model.ParameterValue;
 import hudson.model.Result;
 
-import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState;
-import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState.BuildState;
-
 import org.junit.BeforeClass;
 import org.jvnet.hudson.test.HudsonTestCase;
 
@@ -81,7 +78,7 @@ public class MatrixReloadedListenerTest extends HudsonTestCase {
         List<ParameterValue> values = new ArrayList<ParameterValue>();
         /* UUID */
         String uuid = "myuuid";
-        BuildState bs = MatrixReloadedState.getInstance().getBuildState(uuid);
+        //BuildState bs = MatrixReloadedState.getInstance().getBuildState(uuid);
 
         MatrixBuild mb = mp.scheduleBuild2(0).get();
         MatrixRun mr = mb.getRun(c);

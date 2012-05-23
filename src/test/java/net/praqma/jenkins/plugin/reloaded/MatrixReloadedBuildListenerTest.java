@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState.BuildState;
 
 import org.junit.BeforeClass;
 import org.jvnet.hudson.test.HudsonTestCase;
@@ -46,7 +45,7 @@ public class MatrixReloadedBuildListenerTest extends HudsonTestCase {
         List<ParameterValue> values = new ArrayList<ParameterValue>();
         /* UUID */
         String uuid = "myuuid";
-        BuildState bs = MatrixReloadedState.getInstance().getBuildState(uuid);
+        //BuildState bs = MatrixReloadedState.getInstance().getBuildState(uuid);
 
         MatrixBuild mb = mp.scheduleBuild2(0).get();
         MatrixRun mr = mb.getRun(c);

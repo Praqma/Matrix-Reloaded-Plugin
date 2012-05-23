@@ -25,8 +25,6 @@ package net.praqma.jenkins.plugin.reloaded;
 
 import java.util.logging.Logger;
 
-import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState.BuildState;
-
 import hudson.Extension;
 import hudson.matrix.MatrixConfiguration;
 import hudson.matrix.MatrixBuild;
@@ -41,30 +39,11 @@ public class MatrixReloadedBuildListener extends MatrixBuildListener {
     private static Logger logger = Logger.getLogger(MatrixReloadedBuildListener.class.getName());
 
     public boolean doBuildConfiguration(MatrixBuild b, MatrixConfiguration c) {
-        BuildState bs = Util.getBuildStateFromRun(b);
-        if (bs == null) {
-            //if the build has no BuildState and we should use the 
-            //config from upstream build 
-            List<AbstractProject> ps = b.getProject().getUpstreamProjects();
-            for (AbstractProject p : ps) {
-                if (p instanceof MatrixProject) {
-                    BuildState state = Util.getBuildStateFromRun(p.getLastBuild());
-                    if (state != null && state.downstreamConfig) {
-                        b.getActions().addAll(p.getActions());
-                        bs = Util.getBuildStateFromRun(p.getLastBuild());
-                    }
-                }
-            }
-
-            if (bs == null) {
-
-                logger.severe("I didn't get");
-                return true;
-            }
+    	RebuildAction action = b.getAction( RebuildAction.class );
+        if (action == null) {
+        	return true;
         }
 
-        logger.severe("I got " + bs);
-
-        return bs.getConfiguration(c.getCombination());
+        return action.getConfiguration(c.getCombination());
     }
 }
