@@ -27,13 +27,12 @@ import hudson.Extension;
 import hudson.matrix.MatrixRun;
 import hudson.matrix.MatrixBuild;
 import hudson.model.*;
-import hudson.model.AbstractBuild;
 import hudson.model.listeners.RunListener;
 
 /**
- * This registers the {@link Action}s to the side panel of the matrix project
- * and sets the Run.RedoRun object if it's actually a redo.
- *
+ * The onStarted sets the base build of the run.<br>
+ * The onCompleted registers the {@link Action}s to the side panel of the matrix project.
+ * 
  * @author wolfgang
  */
 @Extension
@@ -44,20 +43,22 @@ public class MatrixReloadedListener extends RunListener<Run> {
     }
 
     /**
-     * 
+     * Determine if the run is matrix reloaded or its parent is. Set the base build accordingly.
      */
     @Override
     public void onStarted(Run run, TaskListener listener) {
 
-        if (run instanceof MatrixBuild) {
+    	/* Only if this is a matrix build and NOT the first run! */
+        if (run instanceof MatrixBuild && run.number > 1) {
         	RebuildAction action = run.getAction( RebuildAction.class );
 
         	/* If the action is null, this must either be a propagated downstream build or not applicable */
             if (action == null) {
-                /* Get the upstream action, if it's not null and the rebuild downstream is set, clone it to the current build and continue  */
-            	action = Util.getUpstreamAction( (AbstractBuild<?, ?>) run );
+                /* Get the upstream action, if it's not null and the rebuild downstream is set, clone it to the previous build and continue  */
+            	action = Util.getUpstreamRebuildAction( (AbstractBuild<?, ?>) run );
                 if (action != null && action.doRebuildDownstream()) {
-                	run.addAction( action.clone() );
+                	action = action.clone( run.number - 1 );
+                	run.addAction( action );
                 } else {
                     return;
                 }
@@ -72,7 +73,7 @@ public class MatrixReloadedListener extends RunListener<Run> {
 
     /**
      * Add the Matrix Reloaded link to the build context, this will enable matrix reload a previous build from the menu.<br>
-     * This is done for all matrix builds 
+     * This is done for all matrix builds/runs
      */
     @Override
     public void onCompleted(Run run, TaskListener listener) {

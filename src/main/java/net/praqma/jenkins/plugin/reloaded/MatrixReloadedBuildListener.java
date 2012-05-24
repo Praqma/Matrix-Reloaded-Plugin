@@ -23,8 +23,6 @@
  */
 package net.praqma.jenkins.plugin.reloaded;
 
-import java.util.logging.Logger;
-
 import hudson.Extension;
 import hudson.matrix.MatrixConfiguration;
 import hudson.matrix.MatrixBuild;

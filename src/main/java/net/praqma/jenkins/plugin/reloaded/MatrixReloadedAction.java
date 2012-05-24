@@ -47,6 +47,7 @@ import hudson.model.Action;
 import hudson.model.Cause;
 import hudson.model.CauseAction;
 import hudson.model.Hudson;
+import hudson.model.ParametersAction;
 
 /**
  * The Matrix Reloaded Action class. This enables the plugin to add the link
@@ -176,11 +177,15 @@ public class MatrixReloadedAction implements Action {
 
         }
         
+        /*
+        * Get the parameters of the build, if any and add them to the build
+        */
+        ParametersAction pactions = build.getAction(ParametersAction.class);
 
         /*
          * Schedule the MatrixBuild
          */        
-        Hudson.getInstance().getQueue().schedule(build.getProject(), 0, raction, new CauseAction(new Cause.UserCause()));
+        Hudson.getInstance().getQueue().schedule(build.getProject(), 0, pactions, raction, new CauseAction(new Cause.UserCause()));
 
     }
 
@@ -195,7 +200,6 @@ public class MatrixReloadedAction implements Action {
     public void doConfigSubmit(StaplerRequest req, StaplerResponse rsp) throws ServletException,
             IOException, InterruptedException {
         AbstractBuild<?, ?> mbuild = req.findAncestorObject(AbstractBuild.class);
-        AbstractBuild<?, ?> build = null;
 
         BuildType type;
 
@@ -209,10 +213,11 @@ public class MatrixReloadedAction implements Action {
             type = BuildType.UNKNOWN;
         }
 
-        JSONObject formData = req.getSubmittedForm();
         Map map = req.getParameterMap();
-        Set<String> keys = map.keySet();
+        
+        /*
         System.out.println("VALUES:");
+        Set<String> keys = map.keySet();
         for (String key : keys) {
             System.out.print(key + ": ");
             for (String val : req.getParameterValues(key)) {
@@ -220,9 +225,8 @@ public class MatrixReloadedAction implements Action {
             }
             System.out.println();
         }
+        */
         performConfig(build, map);
-
-        System.out.println( "Queuing new mr" );
         
         /*
          * Depending on where the form was submitted, the number of levels to

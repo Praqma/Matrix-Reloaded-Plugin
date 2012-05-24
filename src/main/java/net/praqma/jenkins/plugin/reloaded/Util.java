@@ -24,6 +24,7 @@
 
 package net.praqma.jenkins.plugin.reloaded;
 
+import hudson.matrix.MatrixBuild;
 import hudson.model.ParameterValue;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
@@ -53,37 +54,33 @@ public abstract class Util {
         return null;
     }
     
-    public static boolean addActionToRun( Run run ) {
-    	RebuildAction action = run.getAction( RebuildAction.class );
+    public static RebuildAction getDownstreamRebuildActionFromMatrixBuild( MatrixBuild mbuild ) {
+    	RebuildAction action = mbuild.getAction( RebuildAction.class );
 
     	/* If the action is null, this must either be a propagated downstream build or not applicable */
         if (action == null) {
             /* Get the upstream action, if it's not null and the rebuild downstream is set, clone it to the current build and continue  */
-        	action = Util.getUpstreamAction( (AbstractBuild<?, ?>) run );
+        	action = Util.getUpstreamRebuildAction( (AbstractBuild<?, ?>) mbuild );
             if (action != null && action.doRebuildDownstream()) {
-            	run.addAction( action.clone() );
-            	return true;
+            	return action;
             } else {
-                return false;
+                return null;
             }
         } else {
-        	return true;
+        	return action;
         }
     }
     
-    public static RebuildAction getUpstreamAction( AbstractBuild<?, ?> build ) {
+    public static RebuildAction getUpstreamRebuildAction( AbstractBuild<?, ?> build ) {
     	UpstreamCause cause = (UpstreamCause) build.getCause( UpstreamCause.class );
     	if( cause != null ) {
 	    	AbstractProject<?, ?> project = build.getProject();
-	    	
-	    	System.out.println( "Upstream project: " + cause.getUpstreamProject() );
 	    	
 	    	List<AbstractProject> projects = project.getUpstreamProjects();
 	    	
 	    	for( AbstractProject<?, ?> p : projects ) {
 	    		if( cause.getUpstreamProject().equals( p.getDisplayName() ) ) {
 	    			AbstractBuild<?, ?> origin = p.getBuildByNumber( cause.getUpstreamBuild() );
-	    			System.out.println( "Build: " + origin );
 	    			return origin.getAction( RebuildAction.class );
 	    		}
 	    	}

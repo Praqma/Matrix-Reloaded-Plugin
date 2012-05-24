@@ -39,19 +39,15 @@ public class MatrixReloadedEnvironmentContributor extends EnvironmentContributor
     public void buildEnvironmentFor(Run r, EnvVars envs, TaskListener listener) throws IOException,
             InterruptedException {
 
-    	if( r instanceof MatrixRun ) {
-    		System.out.println( "MATRIX RUN!" );
+    	if( r instanceof MatrixRun && r.number > 1 ) {
     		MatrixBuild mb = ((MatrixRun)r).getParentBuild();
-	    	System.out.println( mb.getActions() );
-	    	Util.addActionToRun( mb );
-	    	RebuildAction action = mb.getAction( RebuildAction.class );
-	    	System.out.println( "Trying to put for " + action );
+	    	RebuildAction action = Util.getDownstreamRebuildActionFromMatrixBuild( mb );
+	    	
 	        if( action == null ) {
 	        	return;
 	        }
 	
 	        if (action.getBaseBuildNumber() > 0) {
-	        	System.out.println( "PUTTING " + action.getBaseBuildNumber() );
 	            envs.put(Definitions.__REBUILD_VAR_NAME,action.getBaseBuildNumber() + "");
 	        }
     	}

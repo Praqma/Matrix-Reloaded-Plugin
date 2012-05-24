@@ -6,6 +6,11 @@ import java.util.Map;
 import hudson.matrix.Combination;
 import hudson.model.Action;
 
+/**
+ * This is the action for a matrix build, that determines which(if any) combinations, that should be rebuild.
+ * @author wolfgang
+ *
+ */
 public class RebuildAction implements Action {
 
 	/**
@@ -103,4 +108,7 @@ public class RebuildAction implements Action {
 		return null;
 	}
 
+	public String toString() {
+		return "Rebuild(" + baseBuildNumber + "/" + rebuildDownstream + "): " + configurations.size();
+	}
 }
