@@ -21,68 +21,80 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
  */
-
 package net.praqma.jenkins.plugin.reloaded;
-
-import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState.BuildState;
 
 import hudson.Extension;
 import hudson.matrix.MatrixRun;
 import hudson.matrix.MatrixBuild;
-import hudson.model.AbstractBuild;
-import hudson.model.TaskListener;
-import hudson.model.Run;
+import hudson.model.*;
 import hudson.model.listeners.RunListener;
 
 /**
- * This registers the {@link Action}s to the side panel of the matrix project
- * and sets the Run.RedoRun object if it's actually a redo.
+ * The onStarted sets the base build of the run.<br>
+ * The onCompleted registers the {@link Action}s to the side panel of the matrix project.
  * 
  * @author wolfgang
  */
 @Extension
 public class MatrixReloadedListener extends RunListener<Run> {
-	
+
     public MatrixReloadedListener() {
         super(Run.class);
     }
 
+    /**
+     * Determine if the run is matrix reloaded or its parent is. Set the base build accordingly.
+     */
     @Override
     public void onStarted(Run run, TaskListener listener) {
-        if (run instanceof MatrixBuild) {
-            /**/
-            BuildState bs = Util.getBuildStateFromRun(run);
-            if( bs == null ) {
-            	return;
+
+    	/* Only if this is a matrix build and NOT the first run! */
+        if (run instanceof MatrixBuild && run.number > 1) {
+        	RebuildAction action = run.getAction( RebuildAction.class );
+
+        	/* If the action is null, this must either be a propagated downstream build or not applicable */
+            if (action == null) {
+                /* Get the upstream action, if it's not null and the rebuild downstream is set, clone it to the previous build and continue  */
+            	action = Util.getUpstreamRebuildAction( (AbstractBuild<?, ?>) run );
+                if (action != null && action.doRebuildDownstream()) {
+                	action = action.clone( run.number - 1 );
+                	run.addAction( action );
+                } else {
+                    return;
+                }
             }
-            
-            MatrixBuild mb = (MatrixBuild)run;
-            MatrixBuild base = mb.getProject().getBuildByNumber(bs.rebuildNumber);
-            
-            ((MatrixBuild)run).setBaseBuild(base);
+
+            /* Set the base build for the build */
+            MatrixBuild mb = (MatrixBuild) run;
+            MatrixBuild base = mb.getProject().getBuildByNumber(action.getBaseBuildNumber());
+            ((MatrixBuild) run).setBaseBuild(base);
         }
     }
 
     /**
-     * Add the Matrix Reloaded link to the build context
+     * Add the Matrix Reloaded link to the build context, this will enable matrix reload a previous build from the menu.<br>
+     * This is done for all matrix builds/runs
      */
     @Override
     public void onCompleted(Run run, TaskListener listener) {
-        /* Test for MatrixBuild and add to context */
+		/*
+		 * Test for MatrixBuild and add to context
+		 */
         if (run instanceof MatrixBuild) {
-            AbstractBuild<?, ?> build = (AbstractBuild<?, ?>)run;
+            AbstractBuild<?, ?> build = (AbstractBuild<?, ?>) run;
 
             MatrixReloadedAction action = new MatrixReloadedAction();
             build.getActions().add(action);
         }
 
-        /* Test for MatrixRun and add to context */
+        /*
+         * Test for MatrixRun and add to context
+         */
         if (run instanceof MatrixRun) {
-            AbstractBuild<?, ?> build = (AbstractBuild<?, ?>)run;
+            AbstractBuild<?, ?> build = (AbstractBuild<?, ?>) run;
 
-            MatrixReloadedAction action = new MatrixReloadedAction(((MatrixRun)run).getParent().getCombination().toString());
+            MatrixReloadedAction action = new MatrixReloadedAction(((MatrixRun) run).getParent().getCombination().toString());
             build.getActions().add(action);
         }
     }
-
 }

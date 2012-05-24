@@ -160,8 +160,13 @@ function click2Change( status )
 					<a href="#" onclick="click2Change(1000);">${%All}</a> - 
 					<a href="#" onclick="click2Change(-1);">${%None}</a> 
 					
-					
-					<br /><br /><f:submit value="${%Rebuild Matrix}" />
+					<br/>
+                                        <label>Matrix Reload downstream builds: </label>
+                    <f:checkbox name="forceDownstream"  checked="false" />
+                    <br/>
+                                        <br /><f:submit value="${%Rebuild Matrix}" />
+                                        
+                                        
 				</f:form>
 			</div>
 		</l:main-panel>

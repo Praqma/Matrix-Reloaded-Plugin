@@ -21,12 +21,7 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
  */
-
 package net.praqma.jenkins.plugin.reloaded;
-
-import java.util.logging.Logger;
-
-import net.praqma.jenkins.plugin.reloaded.MatrixReloadedState.BuildState;
 
 import hudson.Extension;
 import hudson.matrix.MatrixConfiguration;
@@ -34,19 +29,14 @@ import hudson.matrix.MatrixBuild;
 import hudson.matrix.listeners.MatrixBuildListener;
 
 @Extension
-public class MatrixReloadedBuildListener extends MatrixBuildListener{
-	
-	private static Logger logger = Logger.getLogger(MatrixReloadedBuildListener.class.getName());
-	
-	public boolean doBuildConfiguration(MatrixBuild b, MatrixConfiguration c) {
-        BuildState bs = Util.getBuildStateFromRun(b);
-        if( bs == null ) {
-        	logger.severe("I didn't get");
+public class MatrixReloadedBuildListener extends MatrixBuildListener {
+
+    public boolean doBuildConfiguration(MatrixBuild b, MatrixConfiguration c) {
+    	RebuildAction action = b.getAction( RebuildAction.class );
+        if (action == null) {
         	return true;
         }
-        
-        logger.severe("I got " + bs);
-        
-        return bs.getConfiguration(c.getCombination());
-	}
+
+        return action.getConfiguration(c.getCombination());
+    }
 }
