@@ -229,7 +229,7 @@ public class MatrixReloadedActionTest extends HudsonTestCase {
         form.put("MRP::", new String[] { "0" });
 
         MatrixReloadedAction mra = new MatrixReloadedAction();
-        mra.performConfig(mb, form);
+        mra.getRebuildAction(form);
     }
 
     public void testFormNoParms() throws IOException, InterruptedException, ExecutionException {
@@ -252,7 +252,7 @@ public class MatrixReloadedActionTest extends HudsonTestCase {
         //form.element("MRP::dim1=2,dim2=b", false);
 
         MatrixReloadedAction mra = new MatrixReloadedAction();
-        mra.performConfig(mb, form);
+        mra.getRebuildAction(form);
     }
 
     public void testFormFalseParms() throws IOException, InterruptedException, ExecutionException {
@@ -273,7 +273,7 @@ public class MatrixReloadedActionTest extends HudsonTestCase {
         form.put("MRPFALSE2", new String[] { "1" });
 
         MatrixReloadedAction mra = new MatrixReloadedAction();
-        mra.performConfig(mb, form);
+        mra.getRebuildAction(form);
     }
 
     public void testFormFalseNumberParm() throws IOException, InterruptedException,
@@ -292,7 +292,7 @@ public class MatrixReloadedActionTest extends HudsonTestCase {
         form.put("MRP::NUMBER", new String[] { "fail" });
 
         MatrixReloadedAction mra = new MatrixReloadedAction();
-        mra.performConfig(mb, form);
+        mra.getRebuildAction(form);
     }
 
     public void testEnv() throws IOException, InterruptedException, ExecutionException {

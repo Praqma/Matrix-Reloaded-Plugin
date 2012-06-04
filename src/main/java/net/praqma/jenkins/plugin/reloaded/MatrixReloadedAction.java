@@ -121,7 +121,7 @@ public class MatrixReloadedAction implements Action {
         return true;
     }
 
-    public void performConfig(AbstractBuild<?, ?> build, Map<String, String[]> formData) {
+    public RebuildAction getRebuildAction(Map<String, String[]> formData) {
         logger.info("[MRP] The MATRIX RELOADED FORM has been submitted");
 
         
@@ -177,16 +177,7 @@ public class MatrixReloadedAction implements Action {
 
         }
         
-        /*
-        * Get the parameters of the build, if any and add them to the build
-        */
-        ParametersAction pactions = build.getAction(ParametersAction.class);
-
-        /*
-         * Schedule the MatrixBuild
-         */        
-        Hudson.getInstance().getQueue().schedule(build.getProject(), 0, pactions, raction, new CauseAction(new Cause.UserCause()));
-
+        return raction;
     }
 
     /**
@@ -226,7 +217,18 @@ public class MatrixReloadedAction implements Action {
             System.out.println();
         }
         */
-        performConfig(build, map);
+        RebuildAction raction = getRebuildAction(map);
+        
+        
+        /*
+        * Get the parameters of the build, if any and add them to the build
+        */
+        ParametersAction pactions = build.getAction(ParametersAction.class);
+
+        /*
+         * Schedule the MatrixBuild
+         */        
+        Hudson.getInstance().getQueue().schedule(build.getProject(), 0, pactions, raction, new CauseAction(new Cause.UserCause()));
         
         /*
          * Depending on where the form was submitted, the number of levels to
