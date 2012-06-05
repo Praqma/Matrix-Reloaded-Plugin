@@ -1,10 +1,9 @@
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>1.418</version><!-- which version of Jenkins is this plugin built 
+        <version>1.426</version><!-- which version of Jenkins is this plugin built 
 			against? -->
     </parent>
 
@@ -14,7 +13,7 @@
     <artifactId>matrix-reloaded</artifactId>
     <version>1.1.0-SNAPSHOT</version>
     <name>Matrix Reloaded Plugin</name>
-    <description>The Matrix Reloaded plugin. Used for rebuilding a subset of a matrix' configurations, reusing the rest.</description>
+    <description>The Matrix Reloaded plugin allows you to rebuild a subset of a matrix configurations.</description>
     <packaging>hpi</packaging>
     <url>https://wiki.jenkins-ci.org/display/JENKINS/Matrix+Reloaded+Plugin</url>
 	
@@ -26,11 +25,6 @@
         <repository>
             <id>repo.jenkins-ci.org</id>
             <url>http://repo.jenkins-ci.org/public/</url>
-        </repository>
-        
-        <repository>
-            <id>praqma-repo</id>
-            <url>http://code.praqma.net/repo/maven/</url>
         </repository>
     </repositories>
 
@@ -71,7 +65,7 @@
 		                </dependencies>
                         <configuration>
                             <includes>
-                                <include>net/praqma/jenkins/plugin/reloaded/IntegrationTests.java</include>
+                                <include>net/praqma/jenkins/plugin/reloaded/FunctionalTests.java</include>
                             </includes>
 
                         </configuration>
@@ -144,6 +138,15 @@
             <timezone>+1</timezone>
         </developer>
     </developers>
+    
+	<dependencies>
+		<dependency>
+			<groupId>org.jenkins-ci.plugins</groupId>
+			<artifactId>downstream-ext</artifactId>
+			<version>1.7</version>
+			<optional>true</optional>
+		</dependency>
+	</dependencies>
     
     <scm>
         <connection>scm:git:ssh://github.com/Praqma/Matrix-Reloaded-Plugin.git</connection>
