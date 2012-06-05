@@ -66,6 +66,7 @@
                         <configuration>
                             <includes>
                                 <include>net/praqma/jenkins/plugin/reloaded/FunctionalTests.java</include>
+                                <include>net/praqma/jenkins/plugin/reloaded/UnitTests.java</include>
                             </includes>
 
                         </configuration>
