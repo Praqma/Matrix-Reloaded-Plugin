@@ -21,7 +21,6 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
  */
-
 package net.praqma.jenkins.plugin.reloaded;
 
 import hudson.matrix.MatrixBuild;
@@ -36,10 +35,9 @@ import java.util.List;
 
 public abstract class Util {
 
-	
     /**
      * Convenience method for retrieving {@link ParameterValue}s.
-     * 
+     *
      * @param pvs A list of {@link ParameterValue}s.
      * @param key The key of the {@link ParameterValue}.
      * @return The parameter or null
@@ -53,39 +51,41 @@ public abstract class Util {
 
         return null;
     }
-    
-    public static RebuildAction getDownstreamRebuildActionFromMatrixBuild( MatrixBuild mbuild ) {
-    	RebuildAction action = mbuild.getAction( RebuildAction.class );
 
-    	/* If the action is null, this must either be a propagated downstream build or not applicable */
+    public static RebuildAction getDownstreamRebuildActionFromMatrixBuild(MatrixBuild mbuild) {
+        RebuildAction action = mbuild.getAction(RebuildAction.class);
+
+        /* If the action is null, this must either be a propagated downstream build or not applicable */
         if (action == null) {
             /* Get the upstream action, if it's not null and the rebuild downstream is set, clone it to the current build and continue  */
-        	action = Util.getUpstreamRebuildAction( (AbstractBuild<?, ?>) mbuild );
+            action = Util.getUpstreamRebuildAction((AbstractBuild<?, ?>) mbuild);
             if (action != null && action.doRebuildDownstream()) {
-            	return action;
+                return action;
             } else {
                 return null;
             }
         } else {
-        	return action;
+            return action;
         }
     }
-    
-    public static RebuildAction getUpstreamRebuildAction( AbstractBuild<?, ?> build ) {
-    	UpstreamCause cause = (UpstreamCause) build.getCause( UpstreamCause.class );
-    	if( cause != null ) {
-	    	AbstractProject<?, ?> project = build.getProject();
-	    	
-	    	List<AbstractProject> projects = project.getUpstreamProjects();
-	    	
-	    	for( AbstractProject<?, ?> p : projects ) {
-	    		if( cause.getUpstreamProject().equals( p.getDisplayName() ) ) {
-	    			AbstractBuild<?, ?> origin = p.getBuildByNumber( cause.getUpstreamBuild() );
-	    			return origin.getAction( RebuildAction.class );
-	    		}
-	    	}
-    	}
-    	
-    	return null;
+
+    public static RebuildAction getUpstreamRebuildAction(AbstractBuild<?, ?> build) {
+        UpstreamCause cause = (UpstreamCause) build.getCause(UpstreamCause.class);
+        if (cause != null) {
+            AbstractProject<?, ?> project = build.getProject();
+
+            List<AbstractProject> projects = project.getUpstreamProjects();
+
+            for (AbstractProject<?, ?> p : projects) {
+                if (cause.getUpstreamProject().equals(p.getDisplayName())) {
+                    AbstractBuild<?, ?> origin = p.getBuildByNumber(cause.getUpstreamBuild());
+
+                    // return the action or null if upstream build is no longer available
+                    return (origin == null) ? null : origin.getAction(RebuildAction.class);
+                }
+            }
+        }
+
+        return null;
     }
 }
