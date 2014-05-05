@@ -201,12 +201,12 @@ public class MatrixReloadedAction implements Action {
 
         BuildType type;
 
-        if (req.findAncestor(MatrixBuild.class) != null) {
-            type = BuildType.MATRIXBUILD;
-            build = mbuild;
-        } else if (req.findAncestor(MatrixRun.class) != null) {
+        if (req.findAncestor(MatrixRun.class) != null) {
             type = BuildType.MATRIXRUN;
             build = ((MatrixRun) mbuild).getParentBuild();
+        } else if (req.findAncestor(MatrixBuild.class) != null) {
+            type = BuildType.MATRIXBUILD;
+            build = mbuild;
         } else {
             type = BuildType.UNKNOWN;
         }
