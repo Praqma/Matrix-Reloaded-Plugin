@@ -10,7 +10,7 @@
 
     <groupId>net.praqma</groupId>
     <artifactId>matrix-reloaded</artifactId>
-    <version>1.1.2</version>
+    <version>1.1.3-SNAPSHOT</version>
     <name>Matrix Reloaded Plugin</name>
     <description>The Matrix Reloaded plugin allows you to rebuild a subset of a matrix configurations.</description>
     <packaging>hpi</packaging>
