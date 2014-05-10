@@ -150,6 +150,7 @@ function click2Change( status, last )
 					<a href="#" onclick="click2Change({0:true}, 0);">${%Successful}</a> - 
 					<a href="#" onclick="click2Change({1:true}, 0);">${%Unstable}</a> - 
 					<a href="#" onclick="click2Change({2:true}, 0);">${%Failed}</a> - 
+					<a href="#" onclick="click2Change({0:true,1:true,2:true,4:true}, 0);">${%Run}</a> - 
 					<a href="#" onclick="click2Change({0:true,1:true,2:true,4:true}, 1);">${%Run in this build}</a> - 
 					<a href="#" onclick="click2Change({0:true,1:true,2:true,3:true,4:true}, 0);">${%All}</a> - 
 					<a href="#" onclick="click2Change({}, 0);">${%None}</a>
