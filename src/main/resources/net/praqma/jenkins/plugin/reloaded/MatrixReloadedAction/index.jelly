@@ -126,17 +126,20 @@ function click2Change( status )
 
 										<j:forEach var="c" items="${r}">
 											<td>
-												<j:choose>
-													<j:forEach var="p" items="${c}">
-														<div>
+												<j:forEach var="p" items="${c}">
+													<j:choose>
+														<j:when test="${it.combinationExists(build, p.combination)}">
+															<j:set var="style" value="" />
+														</j:when>
+														<j:otherwise>
+															<j:set var="style" value="background-color: lightgray;" />
+														</j:otherwise>
+														<div style="${style}">
 															<!-- <d:invokeBody /> -->
 															<st:include page="main.jelly" />
 														</div>
-														<j:if test="${!it.combinationExists(build, p.combination)}">
-															<j:set var="changed" value="1" />
-														</j:if>
-													</j:forEach>
-												</j:choose>
+													</j:choose>
+												</j:forEach>
 											</td>
 										</j:forEach>
 									</tr>
@@ -146,12 +149,6 @@ function click2Change( status )
 					</j:choose>
 					<input type="hidden" name="${it.getPrefix()}NUMBER" value="${build.number}" />
 					<br />
-					
-					<j:if test="${changed==1}">
-						<br />
-						<span style="font-weight:bold;font-size:20px">${%Warning, configuration has changed}</span>
-						<br /><br />
-					</j:if>
 					
 					<span style="font-weight:bold">${%Select}: </span> 
 					<a href="#" onclick="click2Change(0);">${%Successful}</a> - 
