@@ -82,12 +82,18 @@ function click2Change( status, last )
 						<j:when test="${empty(o.x) and empty(o.y)}">
 							<h2>${%Configurations}</h2>
 							<j:forEach var="p" items="${o.rows[0][0]}">
-								<!-- <d:invokeBody /> -->
-								<st:include page="main.jelly" />
-								<st:nbsp />
-								<j:if test="${!it.combinationExists(build, p.combination)}">
-									<j:set var="changed" value="1" />
-								</j:if>
+								<j:choose>
+									<j:when test="${it.combinationExists(build, p.combination)}">
+										<j:set var="style" value="display:inline-block;" />
+									</j:when>
+									<j:otherwise>
+										<j:set var="style" value="display:inline-block; background-color: lightgray;" />
+									</j:otherwise>
+									<div style="${style}">
+										<!-- <d:invokeBody /> -->
+										<st:include page="main.jelly" />
+									</div>
+								</j:choose>
 							</j:forEach>
 						</j:when>
 						<j:otherwise>
@@ -119,17 +125,20 @@ function click2Change( status, last )
 
 										<j:forEach var="c" items="${r}">
 											<td>
-												<j:choose>
-													<j:forEach var="p" items="${c}">
-														<div>
+												<j:forEach var="p" items="${c}">
+													<j:choose>
+														<j:when test="${it.combinationExists(build, p.combination)}">
+															<j:set var="style" value="" />
+														</j:when>
+														<j:otherwise>
+															<j:set var="style" value="background-color: lightgray;" />
+														</j:otherwise>
+														<div style="${style}">
 															<!-- <d:invokeBody /> -->
 															<st:include page="main.jelly" />
 														</div>
-														<j:if test="${!it.combinationExists(build, p.combination)}">
-															<j:set var="changed" value="1" />
-														</j:if>
-													</j:forEach>
-												</j:choose>
+													</j:choose>
+												</j:forEach>
 											</td>
 										</j:forEach>
 									</tr>
@@ -139,12 +148,6 @@ function click2Change( status, last )
 					</j:choose>
 					<input type="hidden" name="${it.getPrefix()}NUMBER" value="${build.number}" />
 					<br />
-					
-					<j:if test="${changed==1}">
-						<br />
-						<span style="font-weight:bold;font-size:20px">${%Warning, configuration has changed}</span>
-						<br /><br />
-					</j:if>
 					
 					<span style="font-weight:bold">${%Select}: </span> 
 					<a href="#" onclick="click2Change({0:true}, 0);">${%Successful}</a> - 
