@@ -35,7 +35,7 @@
 		<l:main-panel>
 
 	<script><![CDATA[
-function click2Change( status )
+function click2Change( status, last )
 {
 	var i;
 	for( i = 0, len = document.matrixreloaded.elements.length ; i < len ; i++ )
@@ -43,14 +43,7 @@ function click2Change( status )
 		var element = document.matrixreloaded.elements[i];
 		if( element.type == 'checkbox' )
 		{
-			if( element.value == status || status > 999 )
-			{
-				element.checked = true;
-			}
-			else
-			{
-				element.checked = false;
-			}
+			element.checked = (element.value in status) || ((parseInt(element.value) + 10) in status && !last);
 		}
 	}
 	return false;
@@ -89,12 +82,18 @@ function click2Change( status )
 						<j:when test="${empty(o.x) and empty(o.y)}">
 							<h2>${%Configurations}</h2>
 							<j:forEach var="p" items="${o.rows[0][0]}">
-								<!-- <d:invokeBody /> -->
-								<st:include page="main.jelly" />
-								<st:nbsp />
-								<j:if test="${!it.combinationExists(build, p.combination)}">
-									<j:set var="changed" value="1" />
-								</j:if>
+								<j:choose>
+									<j:when test="${it.combinationExists(build, p.combination)}">
+										<j:set var="style" value="display:inline-block;" />
+									</j:when>
+									<j:otherwise>
+										<j:set var="style" value="display:inline-block; background-color: lightgray;" />
+									</j:otherwise>
+									<div style="${style}">
+										<!-- <d:invokeBody /> -->
+										<st:include page="main.jelly" />
+									</div>
+								</j:choose>
 							</j:forEach>
 						</j:when>
 						<j:otherwise>
@@ -126,17 +125,20 @@ function click2Change( status )
 
 										<j:forEach var="c" items="${r}">
 											<td>
-												<j:choose>
-													<j:forEach var="p" items="${c}">
-														<div>
+												<j:forEach var="p" items="${c}">
+													<j:choose>
+														<j:when test="${it.combinationExists(build, p.combination)}">
+															<j:set var="style" value="" />
+														</j:when>
+														<j:otherwise>
+															<j:set var="style" value="background-color: lightgray;" />
+														</j:otherwise>
+														<div style="${style}">
 															<!-- <d:invokeBody /> -->
 															<st:include page="main.jelly" />
 														</div>
-														<j:if test="${!it.combinationExists(build, p.combination)}">
-															<j:set var="changed" value="1" />
-														</j:if>
-													</j:forEach>
-												</j:choose>
+													</j:choose>
+												</j:forEach>
 											</td>
 										</j:forEach>
 									</tr>
@@ -147,26 +149,22 @@ function click2Change( status )
 					<input type="hidden" name="${it.getPrefix()}NUMBER" value="${build.number}" />
 					<br />
 					
-					<j:if test="${changed==1}">
-						<br />
-						<span style="font-weight:bold;font-size:20px">${%Warning, configuration has changed}</span>
-						<br /><br />
-					</j:if>
-					
 					<span style="font-weight:bold">${%Select}: </span> 
-					<a href="#" onclick="click2Change(0);">${%Successful}</a> - 
-					<a href="#" onclick="click2Change(1);">${%Unstable}</a> - 
-					<a href="#" onclick="click2Change(2);">${%Failed}</a> - 
-					<a href="#" onclick="click2Change(1000);">${%All}</a> - 
-					<a href="#" onclick="click2Change(-1);">${%None}</a> 
-					
+					<a href="#" onclick="click2Change({0:true}, 0);">${%Successful}</a> - 
+					<a href="#" onclick="click2Change({1:true}, 0);">${%Unstable}</a> - 
+					<a href="#" onclick="click2Change({2:true}, 0);">${%Failed}</a> - 
+					<a href="#" onclick="click2Change({4:true}, 0);">${%Aborted}</a> - 
+					<a href="#" onclick="click2Change({3:true}, 0);">${%Not run}</a> - 
+					<a href="#" onclick="click2Change({0:true,1:true,2:true,4:true}, 0);">${%Run}</a> - 
+					<a href="#" onclick="click2Change({0:true,1:true,2:true,4:true}, 1);">${%Run in this build}</a> - 
+					<a href="#" onclick="click2Change({0:true,1:true,2:true,3:true,4:true}, 0);">${%All}</a> - 
+					<a href="#" onclick="click2Change({}, 0);">${%None}</a>
 					<br/>
-                                        <label>Matrix Reload downstream builds: </label>
-                    <f:checkbox name="forceDownstream"  checked="false" />
-                    <br/>
-                                        <br /><f:submit value="${%Rebuild Matrix}" />
-                                        
-                                        
+					<label>Matrix Reload downstream builds: </label>
+					<f:checkbox name="forceDownstream"  checked="false" />
+					<br/>
+					<br/>
+					<f:submit value="${%Rebuild Matrix}" />
 				</f:form>
 			</div>
 		</l:main-panel>
