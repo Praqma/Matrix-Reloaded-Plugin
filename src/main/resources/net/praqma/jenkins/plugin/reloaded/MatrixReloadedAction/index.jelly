@@ -35,7 +35,7 @@
 		<l:main-panel>
 
 	<script><![CDATA[
-function click2Change( status )
+function click2Change( status, last )
 {
 	var i;
 	for( i = 0, len = document.matrixreloaded.elements.length ; i < len ; i++ )
@@ -43,14 +43,7 @@ function click2Change( status )
 		var element = document.matrixreloaded.elements[i];
 		if( element.type == 'checkbox' )
 		{
-			if( element.value == status || status > 999 )
-			{
-				element.checked = true;
-			}
-			else
-			{
-				element.checked = false;
-			}
+			element.checked = (element.value in status) || ((parseInt(element.value) + 10) in status && !last);
 		}
 	}
 	return false;
@@ -154,19 +147,21 @@ function click2Change( status )
 					</j:if>
 					
 					<span style="font-weight:bold">${%Select}: </span> 
-					<a href="#" onclick="click2Change(0);">${%Successful}</a> - 
-					<a href="#" onclick="click2Change(1);">${%Unstable}</a> - 
-					<a href="#" onclick="click2Change(2);">${%Failed}</a> - 
-					<a href="#" onclick="click2Change(1000);">${%All}</a> - 
-					<a href="#" onclick="click2Change(-1);">${%None}</a> 
-					
+					<a href="#" onclick="click2Change({0:true}, 0);">${%Successful}</a> - 
+					<a href="#" onclick="click2Change({1:true}, 0);">${%Unstable}</a> - 
+					<a href="#" onclick="click2Change({2:true}, 0);">${%Failed}</a> - 
+					<a href="#" onclick="click2Change({4:true}, 0);">${%Aborted}</a> - 
+					<a href="#" onclick="click2Change({3:true}, 0);">${%Not run}</a> - 
+					<a href="#" onclick="click2Change({0:true,1:true,2:true,4:true}, 0);">${%Run}</a> - 
+					<a href="#" onclick="click2Change({0:true,1:true,2:true,4:true}, 1);">${%Run in this build}</a> - 
+					<a href="#" onclick="click2Change({0:true,1:true,2:true,3:true,4:true}, 0);">${%All}</a> - 
+					<a href="#" onclick="click2Change({}, 0);">${%None}</a>
 					<br/>
-                                        <label>Matrix Reload downstream builds: </label>
-                    <f:checkbox name="forceDownstream"  checked="false" />
-                    <br/>
-                                        <br /><f:submit value="${%Rebuild Matrix}" />
-                                        
-                                        
+					<label>Matrix Reload downstream builds: </label>
+					<f:checkbox name="forceDownstream"  checked="false" />
+					<br/>
+					<br/>
+					<f:submit value="${%Rebuild Matrix}" />
 				</f:form>
 			</div>
 		</l:main-panel>
